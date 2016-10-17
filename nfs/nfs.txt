@@ -1,0 +1,110 @@
+*********************************
+* 	    CONTENT 				*
+* 	  							*
+*								*
+*								*
+* 1. Basic knowledge about NFS	*
+* 2. NFS versions pros/cons		*
+* 3. Required ports				*
+* 4. Required processes			*
+* 5. Debian implementation		*
+* 6. Redhat implementation		*
+* 7. Troubleshooting			*
+* 8. Links						*
+*								*
+*********************************
+
+
+==========================================================
+1. Basic knowledge about NFS:
+
+- Current NFS supported versions are: 2, 3, 4
+- NFS4 mounting is different than NFS2/3.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- In NFS4 we always mount the pseudo root / i.e:
+
+On the server we create /myexportroot and this will be our "root" for all exports.
+Then on the client we have to mount like this:
+
+# mount -t nfs -o nfsvers=4,ro,proto=tcp,port=2049 server:/ /mountpoint
+
+This way we mounted the root with all subfolders exported. If we need to mount subfolder now we do this:
+
+# mount -t nfs -o nfsvers=4,ro,proto=tcp,port=2049 server:/subfolder1 /mountpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+==========================================================
+2. NFS versions pros/cons: 
+
+
+
+==========================================================
+3. Required ports: 
+
+- NFS4 - ONLY tcp 2049.
+- NFS2/3:
+
+	- for redhat https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Storage_Administration_Guide/s2-nfs-nfs-firewall-config.html
+	- for debian ?
+
+==========================================================
+4. Required processes: (processes' names shown via rpcinfo -p)
+
+- rpc.statd (status) - this is to monitor & notify peers about client/server reboots. In RedHat this process is controlled by nfslock service.
+- lockd (nlockmgr) - this process is responsible for file locking. In RedHat this process is controlled by nfslock service.
+- rpcbind (portmapper) - this handles all RPC incomming requests and basically uses port 111 tcp/udp.
+- nfsd(4) (nfs) - this is the main NFS daemon. 
+- rpc.mountd (mountd) - this process is used to handle mount request/calls.
+
+==========================================================
+5. DEBIAN IMPLEMENTATION:
+
+5.1. Required packages for client:
+- apt-get install nfs-common portmap
+
+
+5.2. Required packages for server:
+- apt-get install nfs-kernel-server nfs-common portmap
+
+5.3. Required processes:
+nfsd(4), rpc.mountd, rpc.statd, lockd, 
+
+
+5.4. Main config file: /etc/exports
+
+5.5. Main services:
+	- nfs-kernel-server (nfsd daemon)
+	- nfs-common
+
+
+==========================================================
+6. Redhat implementation: 
+
+
+6.1. Required packages for server/client:
+yum install nfs-utils.x86_64  --  NFS utilities and supporting clients and daemons for the kernel NFS server.
+
+6.2. Main services: 
+	- nfs
+	- nfslock
+
+
+==========================================================
+7. Troubleshooting:
+
+Use rpcinfo -p to view the status of all rpc processes.
+Check the firewall ports/settings/status.
+use ps aux | grep xxxx to check if needed processes are running.
+Check your service configs.
+Check SElinux status.
+
+
+==========================================================
+
+8. How to set up NFS4 --- https://help.ubuntu.com/community/NFSv4Howto
+
+

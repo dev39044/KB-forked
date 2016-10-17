@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# This script is intended to add dns A and PTR records in Samba internal DNS system.
+
+TOOL=/opt/mydomain/samba/bin/samba-tool
+LASTOCT=`echo $2 |cut -d. -f4`
+DZONE=mydomain.zz
+PTRZONE=1.168.192.in-addr.arpa
+
+if [[ -z $1 ]]
+then
+ echo "Usage: samba-dns-add <hostname> <IP> [e.g. hercules 192.168.1.206]"
+  exit 1
+fi
+
+if [[ -z $2 ]]
+then
+ echo "Usage: samba-dns-add <hostname> <IP> [e.g. hercules 192.168.1.206]"
+  exit 1
+fi
+
+"$TOOL" dns add `hostname` "$DZONE" "$1" A "$2"
+        if ! [ $? == 0 ]
+        then
+                echo "DNS A RR creation failed!"
+                exit 1
+        fi
+
+"$TOOL" dns add `hostname` "$PTRZONE" "$LASTOCT" PTR "$1"."$DZONE"
+        if ! [ $? == 0 ]
+        then
+                echo "DNS PTR RR creation failed!"
+                exit 1
+        fi
+
+echo -e "\033[1m Let's try to resolve our new records :) \e[0m"
+host -t A "$1"
+echo " -- "
+host -t PTR "$2"
+echo " -- "
+echo " Hooray, 2 more records in our DNS!"
+# EOF

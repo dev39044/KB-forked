@@ -1,0 +1,61 @@
+####################################
+### STANDARD LINUX PERMISSIONS #####
+####################################
+
+You can change permissions ONLY if you are root or file's/folder's owner!
+
+1. Permissions for files:
+
+- r // read permissions for the file. This allows you to read the content of a file.
+- w // write permissions for the file. This allows you to add or modify content of a file.
+- x // execute permissions for the file. This means that if this is a script, you can execute it.
+
+-------------------------------
+2. Permissions for directories:
+
+- r // this allows you to LIST FOLDER's CONTENT.
+- w // Suppose we have a folder named bar/. Allowed actions on folder bar/ are:
+
+	- create new files or folders inside bar/
+	- rename bar/
+	- delete ANY FILEs OR FOLDERs in bar/
+	- delete bar/
+
+- x // this allows you to TRAVERSE this folder. I.e. you can read /foo/bar/file1 and have only -x perms on folder bar.
+	Note that without -x permission over a folder you CANNOT read any file in it or in any subfolder beneath it.
+
+-------------------------------
+3. Setuid & Setgid permissions:
+	3.1 Usage on executables:
+	- if setuid or/& setgid are set on executable file, no matther who execute it, this file will run with user and group ids previously
+set from the owner of that file. E.g.:	
+
+"if the file is owned by user root and group wheel, it will run as root:wheel no matter who executes the file."
+
+	3.2 Usage on directories:
+	- setuid is ignored for directories on Linux.
+	- setgid set on directories allows newly created files and folders to inherit its group ID, rather than the primary group ID of the user who created the file (the owner ID is never affected, only the group ID).
+	3.3 How to set these bits:
+	
+	# chmod u+s file1 or dir1 (ignored for folders) or chmod 4777 file1 or dir1 // for setuid
+	# chmod g+s file1 or dir1 or chmod 2777 file1 or dir1 // for setgid
+
+-------------------------
+4. Sticky bit permission:
+	4.1 Usage:
+	- Usually it's use is for directories.
+	- If sticky bit is set on directory, only the item's owner, the directory's owner, or root have perms to modify or delete files in 
+that directory. Common use is on /tmp dir.
+	- If execution bit for "others" haven't been already assigned, sticky bit is marked with T, instead of t.
+
+EXAMPLE: 
+  # ls -l test
+  -rw-r--r--   1 root     other          0 Nov 10 12:57 test // note that -x for "others" is not set, thus sticky is capital T.
+  # chmod +t test; ls -l test
+  -rw-r--r-T   1 root     other          0 Nov 10 12:57 test
+	
+	4.2 How to set sticky bit:
+
+	# chmod +t /dir1 or chmod 1777 , e.g. with bit 1.
+
+

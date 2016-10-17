@@ -1,0 +1,39 @@
+###########################################
+# Search Files Based On their permissions #
+###########################################
+
+find . -type f -perm 0777 -print 												// Find all the files whose permissions are 777
+find / -type f ! -perm 777														// Find all the files without permission 777
+find / -perm 2644																// Find all the SGID bit files whose permissions set to 644
+find / -perm /u=s																// Find all SUID set files.
+
+###########################################
+# Search Files Based On Owners and Groups #
+###########################################
+
+find / -user root -name tecmint.txt 											// To find all or single file called tecmint.txt under / root directory of owner root
+find /home -user tecmint														// To find all files that belongs to user Tecmint under /home directory.
+find /home -group developer														// To find all files that belongs to group Developer under /home directory.
+
+#####################################################
+# Find Files and Directories Based on Date and Time #
+#####################################################
+
+find / -mtime +50 -mtime -100													// Find all the files which are modified more than 50 days back and less than 100 days
+find / -cmin -60																// Find all the files which are changed in last 1 hour
+
+########################################## 
+Find Files and Directories Based on Size #
+##########################################
+
+find / -size 50M																// Find all 50MB files
+find . -type f -size +100000k -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'  	// Find files larger than 100MB in current folder
+
+########
+# MISC #
+########
+
+find / -type f -name *.mp3 -size +10M -exec rm {} \;							// Find all .mp3 files with more than 10MB and delete them using one single command.
+find /tmp -type f -empty														// Find all empty files under certain path
+find /tmp -type d -empty														// Find all empty directories under certain path
+find /tmp -type f -name ".*"													// Find all hidden files

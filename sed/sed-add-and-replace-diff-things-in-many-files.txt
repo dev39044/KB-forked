@@ -1,0 +1,14 @@
+#!/bin/bash
+
+FOLDERS=$(cat fol.txt)
+PORTS=$(cat ports.txt)
+
+for p in $PORTS
+do
+	PASS=$(grep $p pass.txt |cut -d" " -f2)
+	sed -i "s/gsi01yiaHRG0l/$PASS/g" tomcat$p/*
+	sed -i "s/8080/$p/g" tomcat$p/*
+	sed -i -r 's/graph_title(.*)\\n\";$/graph_title\1 '$p'\\n\d34;/' tomcat$p/*
+
+done
+

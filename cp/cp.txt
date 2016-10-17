@@ -1,0 +1,7 @@
+### cp files/folders ### 
+
+cp -r folder1/ dest-folder2/  -- this will copy folder1 (ITSELF) to dest-folder2 with all files and sub-folders in it.
+
+cp -r folder1/* dest-folder2/ -- this will copy ONLY files and sub-folders under folder1 to folder2. 
+
+cp folder1/* dest-folder2/ -- this will copy ONLY files under folder1 to folder2, all sub-folders under folder1 will be skipped.

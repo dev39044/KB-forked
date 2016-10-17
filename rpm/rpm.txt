@@ -1,0 +1,25 @@
+=========================== RPM ==================================
+
+rpm -i <pkg> 		// install the named pkg
+
+rpm -U <pkg> 	// upgrade or install the named pkg and REMOVE all old versions.
+
+rpm -F <pkg> 		// upgrade pkg, but only ones for which an earlier version is installed.
+
+rpm -h 		// this is useful for BIG packages and adds # sign to show the progress (up to 50 # will be printed).
+
+rpm -i --test <pkg> 	// this will not install the pkg, instead could be used for debugging purposes.
+
+rpm -iv --replacepkgs <pkg> 	// this is used to force installing a pkg on top of "damaged" pkg for example. 
+
+rpm -e <pkg> // erase mentioned pkg
+
+rpm -qf /bin/ls // this could be used to find out specific program <-> pkg relation.
+
+rpm -qa |grep <pkg>  // to query (-q) ALL (-a) INSTALLED pkgs
+
+rpm -ql <pkg>  // used to list the files of INSTALLED pkg
+
+rpm -qlp <pkg>  // used to list the files of UNINSTALLED pkg
+
+======================================================================

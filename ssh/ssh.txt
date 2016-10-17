@@ -1,0 +1,61 @@
+#########################################################################################################
+# version: $OpenBSD: sshd_config,v 1.80 2008/07/02 02:24:18 djm Exp $									#
+#																										#
+# Security consideration:																				#
+# 1. Check EXACTLY the fingerprints you accept!!!														#
+# 2. Use RSA keys, instead of passwords.																#
+# 3. Change default sshd port																			#
+# 4. Disable root login																					#
+# 5. Limit users who can login via ssh.																	#
+# 6. Generate PKI keys with "ssh-keygen -t rsa" on the LOCAL PC from which you'll access target SRVs.	#
+# 7. Change keys' destination folder permissions 														#
+# 8. Add generated *.pub key to user's ./ssh/autorized_keys file on the TARGET server.					#
+#########################################################################################################
+
+Protocol 2
+AddressFamily inet
+
+################## CHANGE THIS in IPTABLES as well
+Port <4444>
+################## CHANGE THIS !		
+ListenAddress  <0.0.0.0>
+
+HostKey /etc/ssh/ssh_host_rsa_key
+HostbasedAuthentication no
+
+################## CREATE THIS USER 1ST!
+AllowUsers ssx
+AllowTcpForwarding no
+
+ChallengeResponseAuthentication no
+
+Ciphers aes256-ctr,aes192-ctr,aes128-ctr
+
+GSSAPIAuthentication no
+
+IgnoreRhosts yes
+IgnoreUserKnownHosts yes
+
+LogLevel INFO
+LoginGraceTime 60
+
+MaxAuthTries 3
+MaxSessions 3
+MaxStartups 2
+
+PermitEmptyPasswords no
+PasswordAuthentication no
+PrintLastLog yes
+PubkeyAuthentication yes
+PermitRootLogin no
+RSAAuthentication no
+
+StrictModes yes
+PermitUserEnvironment no
+Subsystem       sftp    /usr/libexec/openssh/sftp-server
+SyslogFacility AUTHPRIV
+
+X11Forwarding no
+
+UsePAM no
+UseLogin no

@@ -1,0 +1,20 @@
+1. Installation:
+
+You need to install 4 groups using apt-get install or yum groupinstall:
+
+yum groupinfo Virtualization // this will give you the list of pkgs in this group
+yum groupinstall <group name> // this will install ALL pkgs in mentioned group.
+
+2. You need to check that libvirtd daemon is configured to start at boot and it's running.
+
+3. Check that kvm modules are loaded at boot time:
+
+lsmod kvm // should give you info that kvm module is loaded as well as kvm_intel or kvm_amd.
+
+NOTE: kvm_intel or amd will be loaded ONLY if your host supports Virtualization extentions, 
+i.e: 
+
+grep -Ei (vmx|svm) /proc/cpuinfo  // this should show some output if you have needed virt capabilities.
+
+4. In order to manage VM via GUI, install virt-manager.
+ 

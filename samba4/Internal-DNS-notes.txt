@@ -1,0 +1,22 @@
+
+
+1. When you create PTR DNS zone, make it 56.168.192.in-addr.arpa instead of 0.56.168.192.in-addr.arpa ... MENTION THE ZERO ....it shouldn't be there is the mask is /24.
+2. When you miss a DNS record for a Windows client, try to run from the client itself command: ipconfig /registerdns .
+3. For linux clients the command: net ads dns register  , will work only when you have (TSIG good configuration ..no idea how to make it yet) or in AD DC smb.conf file enabled
+parameter: allow dns updates = nonsecure . As you can see, this is not a good to be enabled
+
+# To see all records in a dns zone use this command:
+
+samba-tool dns query deb1 mydomain.local @ ALL
+
+# To add an A DNS record, do the following:
+
+samba-tool dns add deb1 mydomain.local munin A 192.168.56.30
+
+# To add a PTR record in Samba DNS, do the following:
+
+samba-tool dns add deb1 56.168.192.in-addr.arpa 30 PTR munin.mydomain.local
+
+
+
+

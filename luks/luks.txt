@@ -1,0 +1,83 @@
+#########################################################################################################################
+# Before continue reading below, you need to understand what device mapper, dm-crypt, container etc. are:				#
+# - device mapper (dm) is a framework for block devices. It's an interface between real block device and virtual one.	#
+# man dmsetup or wiki for dm.																							#
+# - dm-crypt as well as LVM are using targets. These targets are the virtual devices which dm is managing.				#
+######################################################################################################################### 
+So in order to have an encrypted device you need to do a few steps:
+	- have a block or loop device
+	- initialize (format) this device as luks.
+	- create a target in order dm to be able to manage it. Note dm-crypt relay on dm! 
+	# the command for luks target is "cryptsetup -v luksOpen /dev/device <target-name>"
+	- create a FS on the target
+	- define this mapping in /etc/crypttab, i.e <target-name> /dev/device "<password here>" or "none" <optional options>
+	- create a mount point and list it in /etc/fstab.
+
+#############################################################################################################################
+# Manually Encrypting Directories																							#
+# WARNING!!!																												#
+# Following this procedure will remove all data on the partition that you are encrypting. 									#
+# You WILL lose all your information! Make sure you backup your data to an external source before beginning this procedure!	#
+#############################################################################################################################
+
+1. Unmount your existing /home:
+
+    # umount /home
+
+2. If the command in the previous step fails, use fuser to find processes hogging /home and kill them:
+
+    # fuser -mvk /home
+
+3. Verify /home is no longer mounted:
+
+    # grep home /proc/mounts
+
+4.  Initialize your partition:
+
+    # cryptsetup --verbose --verify-passphrase luksFormat /dev/VG00/LV_home
+
+5. Open the newly encrypted device:
+
+    # cryptsetup -v luksOpen /dev/VG00/LV_home home // this is needed in order a new link to be created in /dev/mapper
+
+6. Make sure the device is present:
+
+    # ls -l /dev/mapper | grep home
+    # lsblk --fs
+    # blkid
+
+Note that a reboot might be needed in order new target to appear in blkid or lsblk commands.
+
+7. Create a file system:
+
+    # mkfs.ext3 /dev/mapper/home
+
+8. Mount the file system:
+
+    # mount /dev/mapper/home /home
+
+9. Make sure the file system is visible:
+
+    # df -h | grep home
+
+10. Add the following to the /etc/crypttab file:
+
+    # home /dev/VG00/LV_home none
+
+11. Edit the /etc/fstab file, removing the old entry for /home and adding the following line:
+
+    # /dev/mapper/home /home ext3 defaults 1 2
+
+12. Restore default SELinux security contexts:
+
+    # /sbin/restorecon -v -R /home
+
+13. Reboot the machine:
+
+    # shutdown -r now
+
+    The entry in the /etc/crypttab makes your computer ask your luks passphrase on boot.
+    Log in as root and restore your backup. 
+
+You now have an encrypted partition for all of your data to safely rest while the computer is off. 
+

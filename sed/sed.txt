@@ -1,0 +1,58 @@
+# Checkout "info sed" for more information about this tool
+# Remember also -r switch that turns ON extended REGEX. Which means: "The only difference between basic and extended regular expressions is in the behavior of a few # characters: ‘?’, ‘+’, parentheses, and braces (‘{}’). While basic regular expressions require these to be escaped if you want them to behave as special characters, when using extended regular expressions you must escape them if you want them to match a literal character."
+
+# COMMENTS
+
+sed -i 's/\(.*\)/#\1/g' /YOUR/FILE 									// comment all lines in a file
+grep -E -w alias .bashrc | grep -Ev "#" | sed -e 's/^[ \t]*/#/'		// comment only specific words with whitespace in front of them use this command
+sed -i 's/^\([^#]\)/#\1/g' /YOUR/FILE 								// comment only lines that aren't already commented in a file
+
+# INSERT/APPEND
+
+sed "s/^dn/\n&/g"          											// add an empty row before every "dn" match
+sed -i "/^1295/ s/$/\nNEWLINE2/g" FILE   							// this will find all lines starting with 1295 and will add NEWLINE on a new line right after the match.
+sed 's/^cn=/member: cn=/g'  										// this add "member:" in front of every line that beggins with cn=
+sed 's/^[ ]/cn=/g'              	    							// just add "cn=" on every line starting with empty space.
+sed "/^cn=*/ s/$/,$UDN/g"         									// will find all rows which start with "cn=" and will add $UDN variable at last.
+sed '/^dn/{G;}'                 									// this will add an empty row below every line that starts with dn.
+sed '18iLINE13 \nLINE14\nLINE15' FILE								// insert LINE13 on row #18 and then add on new line LINE14 and LINE15
+ 
+# SUBSTITUTE/REPLACE
+
+find . -type f -exec sed -i 's/foo/bar/Ig' {} +						// replace foo with bar in all files recursively
+sed -i 's/^[ \t]*//' /YOUR/FILE 									// remove all whitespace (including tabs) from left to first word
+sed 's/memberUid/member/g'                							// replace "memberUid" with "member" according to SAMBA schema.
+sed 's/member://g'                   	 							// remove the row "member:"
+sed 's/^\s*$/add: member/g'   										// replace newly created empty row with "add: member" .
+grep -E -w alias FILE |grep -Ev "#" |sed -e 's/^[ \t]*/#/' 			// To comment ONLY specific words with whitespace in front of them use this command
+
+# DELETE
+
+sed -i '/^PASS/d' /etc/file 					// this will delete any line starting with PASS in /etc/file
+sed -i '/^$/d'	  /etc/file 					// this will delete ALL empty lines in the file
+
+# MATCH / REMOVE
+
+sed -e '/172.16./,+1d' /etc/file				// this will remove all matching lines +(PLUS) the next right after it.
+sed -e '/172.16./,+1!d' /etc/file				// this will remove all lines that DO NOT match (-)MINUS the next right after it.
+
+# Express characters
+
+sed "s/line1/line1\d34/g" list.txt 				// this will "add" one double quote after the match line1. Note that we use \d and number. This number is
+												// the decimal number representation of any ACSII character. E.g. \d37 is "%" sign. COOL! Moreover you use
+												// double quotes from the beggining till the end of sed script, means that you can use VARIABLES! 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

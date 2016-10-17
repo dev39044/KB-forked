@@ -1,0 +1,74 @@
+#!/bin/bash
+# Written by Valentin Georgiev
+
+# ----------------------
+# Defining a bit of vars
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/mydomain/samba/sbin:/opt/mydomain/samba/bin
+SRC=/opt/mydomain/samba
+DEST=/opt/mydomain/backups
+DATE=$(date +%d-%b-%Y)
+HOST=$(hostname)
+DAYS=90
+MAILFROM=samba-$HOST@mydomain.com
+MAILTO=valentin@mydomain.com
+DAR=$(which dar)
+UUENCODE=$(which uuenview)
+SENDMAIL=$(which sendmail)
+
+
+# ------------------------
+
+if [ ! -r "$DAR" ]; then
+        echo -e "\e[31m dar tool does not exist! \e[0m Install it with apt-get install dar"
+	echo "Operation aborted!" 
+        exit 1 
+fi
+
+if [ ! -r $SENDMAIL ]; then
+        echo -e "\e[31m No MTA found! \e[0m Install it with apt-get install ssmtp and do not forget to configure it :) !"
+	echo "Operation aborted!" 
+        exit 1 
+fi
+
+if [ ! -r "$UUENCODE" ]; then
+        echo -e "\e[31m uuenview tool does not exist! \e[0m Install it with apt-get install uudeview"
+	echo "Operation aborted!" 
+        exit 1 
+fi
+
+# Delete all old backup files ending with *.ldb.bak extention located in $SRC/*
+
+cd ${SRC}
+find . -name "*.ldb.bak" -exec rm {} \;
+
+# Find all files ending with *.ldb extention and make a backup of them with extention *.ldb.bak
+# Note that oficial & proper way of backing up *.ldb databases is with tdbbackup tool!
+
+         for ldb in `find private -iname "*.ldb"`; do
+                tdbbackup "$ldb" 2>${DEST}/ldb-err.txt
+
+                # If backup face an error - send an email with logged error in ldb-err.txt file:
+
+                 if [ $? -ne 0 ]; then
+                   echo -e "From: ${MAILFROM}\nTo: ${MAILTO}\nSubject: \
+                   Errors while backing up $ldb file !\n\nCheck attached file! " |uuenview -a -bo ${DEST}/ldb-err.txt|sendmail -t
+                   exit 1
+                 fi
+         done
+
+# Backing up $SRC/private,etc,var folders with dar tool. Note that this tool preserve xattr + acl, that's why I use it.
+
+        $DAR -w -z -c "${DEST}/samba4-bkp-${HOST}-${DATE}" -g etc -g private -g var -X "*.ldb" >/"${DEST}/output.txt" 2>&1
+
+# If backup face an error - send an email with output.txt file for details:
+ 
+        if [ $? -ne 0 ]; then
+          echo -e "From: ${MAILFROM}\nTo: ${MAILTO}\nSubject: \
+          Errors while backing up host ${HOST} !\n\nCheck attached file! " |uuenview -a -bo ${DEST}/output.txt|sendmail -t
+          exit 1
+        fi
+
+# Delete files with ext. *.dar older then +$DAYS:
+find "${DEST}" -iname "*.dar" -mtime +$DAYS -exec rm  {} \; >/dev/null 2>&1
+

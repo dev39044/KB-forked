@@ -1,0 +1,24 @@
+### LEGACY ###
+
+BIOS support msdos partition tables.
+msdos part table limits the max partition size to 2TB.
+msdos part table allows only 4 partition, which you can extend by using extended/logical partitions.
+
+
+
+### NEW AGE ### 
+
+GPT part table supports partitions with size a few ZB (zetabytes) .... huuuuge number!
+GPT by default allows 128 partitions in a disk.
+UEFI will supersedes BIOS. UEFI use GPT by default.
+You can have a partition formated with gpt part table with no issues. However if you
+want to boot an OS from gpt formated partition this is a different thing.
+Note that BIOS/GPT booting is not supported on Windows and on Linux is not recommended as well.
+The right combination to boot from gpt partition is to use the new firmware UEFI.
+
+GRUB-legacy v0.97 - DO NOT support gpt partitions. Instead use GRUB2 or v1.98 which have this support.
+
+# TOOLS:
+
+fdisk, sfdisk, cfdisk - all of them DO NOT support gpt partitions.
+parted - support gpt partitions.

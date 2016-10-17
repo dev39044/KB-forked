@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# This script is intended to delete dns A and PTR records from Samba internal DNS system.
+
+TOOL=/opt/your-domain/samba/bin/samba-tool
+LASTOCT=`echo $2 |cut -d. -f4`
+DZONE=your-domain.zz
+PTRZONE=1.168.192.in-addr.arpa
+
+if [[ -z $1 ]]
+then
+ echo "Usage: samba-dns-add <hostname> <IP> [e.g. hercules 192.168.1.206 ]"
+  exit 1
+fi
+
+if [[ -z $2 ]]
+then
+ echo "Usage: samba-dns-add <hostname> <IP> [e.g. hercules 192.168.1.206 ]"
+  exit 1
+fi
+
+echo -e "\033[1m Checking available dns records... \e[0m"
+host -t A "$1"
+host -t PTR "$2"
+
+echo " -- "
+echo -e "\033[1m Deleting requested records... \e[0m"
+
+"$TOOL" dns delete `hostname` "$DZONE" "$1" A "$2"
+        if ! [ $? == 0 ]
+        then
+                echo "DNS A RR deletion failed or no such record!"
+        fi
+
+"$TOOL" dns delete `hostname` "$PTRZONE" "$LASTOCT" PTR "$1"."$DZONE"
+        if ! [ $? == 0 ]
+        then
+                echo "DNS PTR RR deletion failed or no such record!"
+                exit 1
+        fi
+
+echo -e "\033[1m Note: You might need to wait ~ 5-10 seconds before DNS cache is refreshed. \e[0m"
+echo -e "\033[1m You can use these commands: host -t A $1 and host -t PTR $2 \e[0m"
+# EOF
+

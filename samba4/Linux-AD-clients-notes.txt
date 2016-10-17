@@ -1,0 +1,91 @@
+
+1. You need to install the winbind and samba packages. The packages cifs-utils and smbclient are useful for mounting network shares and copying files.
+
+apt-get install samba winbind cifs-utils smbclient krb5-user libpam-krb5
+
+2. The first step in joining the Active Directory domain is to edit /etc/samba/smb.conf:
+
+[global]
+        security = ads
+        realm = mydomain.ZZ
+# Below parameter could contain entries with space separated, i.e ip addresses of other DCs. Note that their is some delay ~3-4secs. when the 1st DC is down.
+        password server = 192.168.1.30 192.168.1.31
+# note that workgroup is the 'short' domain name
+        workgroup = mydomain
+#       winbind separator = +
+        idmap uid = 50000-60000
+        idmap gid = 50000-60000
+        winbind enum users = yes
+        winbind enum groups = yes
+        template homedir = /home/%D/%U
+        template shell = /bin/bash
+        client use spnego = yes
+        client ntlmv2 auth = yes
+        encrypt passwords = yes
+        winbind use default domain = yes
+        restrict anonymous = 2
+
+
+3. Check your /etc/hosts file.
+
+4. Edit /etc/krb5.conf file:
+
+[logging]
+        Default = FILE:/var/log/krb5.log
+
+[libdefaults]
+        ticket_lifetime = 24000
+        clock-skew = 300
+        default_realm = mydomain.ZZ
+#       dns_lookup_realm = false
+#       dns_lookup_kdc = true
+
+[realms]
+        mydomain.zz = {
+                kdc = vg-dc01.mydomain.zz:88
+		kdc = vg-dc02.mydomain.zz:88
+                admin_server = vg-dc01.mydomain.zz:464
+                default_domain = mydomain.zz        
+
+}
+
+[domain_realm]
+        .server.com = mydomain.zz
+        server.com = mydomain.zz
+
+
+5. Test with kinit then klist to see if Kerberos works.
+
+6. Stop winbind, restart samba, start winbind.
+
+7. Join the domain:
+
+	# net ads join
+
+RESTART: Stop winbind, restart samba, start winbind AGAIN!
+
+8. Test if you can see the users in AD:
+
+	# wbinfo -u
+
+9. Edit /etc/nsswitch.conf with:
+
+passwd: compat winbind
+group:  compat winbind
+shadow: compat winbind
+
+10. Run pam-auth-update in order to add needful entries in pam.d/* files]
+
+11. Add this to /etc/pam.d/common-session
+
+session required pam_unix.so
+session required pam_mkhomedir.so umask=0022 skel=/etc/skel
+
+12. Restart samba and winbind services
+
+13. Test if you see passwd and groups in AD:
+
+	# getent passwd
+	# getent group
+
+# EOF

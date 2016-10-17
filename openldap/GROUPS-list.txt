@@ -1,0 +1,17 @@
+
+# In order to extract only groups from slapcat dump file, use:
+
+grep Group slapcat-vg.txt |grep dn |cut -d, -f1 |cut -d= -f2|sort -u > group-list.txt
+
+# Result below:
+
+Domain Admins
+Domain Users
+Domain Guests
+Domain Computers
+Administrators
+Account Operators
+Print Operators
+Backup Operators
+Replicators
+...etc

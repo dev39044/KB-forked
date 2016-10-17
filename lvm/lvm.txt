@@ -1,0 +1,137 @@
+### LVM2 ####
+
+#######
+# PV  #
+#######
+
+#  this will show all PVs, usable for scripting. You can use -v for verbose.
+pvs 
+
+# this is more sophisticated output.
+pvdisplay 
+
+# this will resize live LVM PV
+pvresize --setphysicalvolumesize 10G /dev/sdb 
+
+# this will remove mentioned PV.
+pvremove /dev/sdb 
+
+# this will initialize partition 4 of the third SCSI disk as PV.
+pvcreate /dev/sdc4 
+
+#######
+# VG  #
+#######
+
+#################################################
+# this will create VG with name vg1 and PV sdd1 #
+#################################################
+vgcreate vg1 /dev/sdd1 
+
+###############################################################
+# this will add additional physical volumes to an existing VG #
+###############################################################
+vgextend vg1 /dev/sdf1 
+
+#############################################################################
+# this will show all VGs, usable for scripting. You can use -v for verbose. #
+#############################################################################
+vgs 
+
+######################################
+# this is more sophisticated output. #
+######################################
+vgdisplay 
+
+###########################################################################################################################################################################################################
+# this will scans all supported disk devices in the system looking for LVM physical volumes and volume groups. You may need to run the vgscan command manually when you change your hardware 
+# configuration and add or delete a device from a node, causing new devices to be visible to the system that were not present at system bootup.
+###########################################################################################################################################################################################################
+vgscan 
+
+###########################################################################################################################################################################################################
+# this will remove the physical volume /dev/hda1 from the volume group my_volume_group. Before removing a physical volume from a volume group, you can make sure that the physical volume is not used by #  any logical volumes by using the pvdisplay command.
+###########################################################################################################################################################################################################
+vgreduce my_volume_group /dev/hda1 
+
+############################################################################
+# this could be used to activate or deactivate VGs, or various parameters. #
+############################################################################
+vgchange 
+
+######################################################
+# this will deactivate volume group my_volume_group. #
+######################################################
+vgchange -a n my_volume_group 
+
+#####################################################################
+# this will remove a volume group that contains no logical volumes. #
+#####################################################################
+vgremove <vgname> 
+
+################################
+# this is used to rename a VG. #
+################################
+vgrename /dev/vg02 /dev/my_volume_group or vgrename vg02 my_volume_group
+
+#######
+# LV  #
+#######
+
+lvreduce, lvextend, lvresize, are all symlinks to lvm.
+Main difference is that lvresize could be used to both: reduce & extend, instead 1st two 
+can only reduce or extend - thus, you're protected of typo error.
+
+
+lvextend -L +64000M /dev/mapper/vg00-lvol_dump // this will extend LV dump with 64 GB more. Then you need to resize the FS with below command.
+resize2fs /dev/mapper/vg00-lvol_dump // this will resize the FS according new size made with lvextend.
+
+=====
+lvreduce: READ THIS http://blog.shadypixel.com/how-to-shrink-an-lvm-volume-safely/
+
+1. umount /dev/mapper/vg00_lv_xxxxx
+2. e2fsck -f /dev/mapper/vg00_lv_xxxxx
+3. resize2fs /dev/mapper/vg00_lv_xxxxx 40G // this will resize the FS to 40 GB. It's really good LV in this case to be bigger
+i.e +10 % at least. (50GB)
+
+4. lvreduce -L 50GB /dev/mapper/vg00_lv_xxxxx // this will make LV exactly 50GB.
+5. resize2fs /dev/mapper/vg00_lv_xxxxx // this will resize the FS to the new LV size of 50 GB.
+======
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

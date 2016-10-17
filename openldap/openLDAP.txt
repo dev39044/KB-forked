@@ -1,0 +1,33 @@
+How to search an openLDAP DB?
+
+# 1st we need to have installed first ldap-utils, in order to have tools like ldapsearch...
+
+===================
+# Search all users in the main base, i.e dc=mydomain,dc=zz and show all their options, classes, memberships etc.
+
+ldapsearch -b dc=mydomain,dc=zz '(&(objectclass=user)(!(objectclass=computer)))' -H ldap://vg-dc01.mydomain.zz
+
+# On the above command we have 2 filters. The 1st is to select objectclass user, but this includes and computer objects as well (weird?!) and the 2nd is to negate or deselect the objectclass=Computers. With -H we show the server on which we execute the query. If this is zzhost ... we can skip this parameter.
+
+===================
+
+# Search for user "Natalia" through the whole DB of users:
+
+ldapsearch -b dc=mydomain,dc=zz '(&(objectclass=user)(!(objectclass=computer))(name=Natalia))' -H ldap://vg-dc01.mydomain.zz
+
+# Above command will show ALL details about this user. If you want to filter to specific user's argument (like surname, logonCount, etc.) you need to add them at the end of the command.
+# One advise - 1st check what exact user's arguments are available before to search. E.g. if you add "fn" at the end of the command and this is not set for this user, then you will receive only user's DN.
+
+===================
+
+# Search for username containing "*aba*" string in the base 'ou=mydomain,dc=mydomain,dc=zz' and skipp comments, and LDAP version, and change the format (-LLL) and finally show only the name (DN will be shown by default).
+
+ldapsearch -LLL -b 'ou=mydomain,dc=mydomain,dc=zz' '(&(objectclass=user)(!(objectclass=computer))(name=*aba*))' -H ldap://vg-dc01.mydomain.zz name
+
+===================
+
+# Find out who is a member of "Schema Admins" group, and sort the output by "cn":
+
+ldapsearch -b 'dc=mydomain,dc=zz' '(memberOf=CN=Schema Admins,CN=Users,DC=mydomain,DC=zz)' -H ldap://vg-dc01.mydomain.zz cn
+
+===================

@@ -1,0 +1,88 @@
+Prerequisites
+
+The same as vg-DC01
+
+
+
+Installation
+
+The same as vg-DC01
+The same as vg-DC01
+The same as vg-DC01
+This is important step! You need to configure the following files before domain controller promotion/join:
+ 
+
+	/etc/resolv.conf
+root@vg-dc02:~# cat /etc/resolv.conf 
+# nameserver 192.168.1.31 – UNCOMMENT THIS AFTER SUCCESSFUL DOMAIN JOIN AND SYSTEM REBOOT!
+nameserver 192.168.1.30
+domain mydomain.zz
+	/etc/krb5.conf
+root@vg-dc02:~# cat /etc/krb5.conf 
+[libdefaults]
+default_realm = mydomain.ZZ
+dns_lookup_realm = false
+dns_lookup_kdc = true
+forwardable = true
+proxiable = true
+debug = true
+[realms]
+mydomain.ZZ = {
+kdc = vg-dc01.mydomain.zz:88
+kdc = vg-dc02.mydomain.zz:88
+admin_server = vg-dc01.mydomain.zz:464
+default_domain = mydomain.zz
+}
+	/etc/hosts
+root@vg-dc02:~# cat /etc/hosts
+127.0.0.1 localhost.mydomain.zz localhost
+192.168.1.206 hercules.mydomain.zz hercules
+192.168.1.31 vg-dc02.mydomain.zz vg-dc02
+192.168.1.30 vg-dc01.mydomain.zz vg-dc01
+
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+You may try testing with "kinit Administrator" and then "klist" commands to see if Kerberos is working.
+
+It also make sense to create A and PTR records in the DNS before joining SDC!
+
+Now it's time for domain controller provision/join. Use below command:
+
+samba-tool domain join mydomain.zz DC -Uadministrator --realm=mydomain.zz
+Continue with steps 4.2 towards the end from previous page. Do not forget to reboot the system.
+
+DCs replication test:
+After successful join you should be able to execute successfully below command and get similar output: 
+
+
+root@vg-dc02:~# samba-tool drs showrepl
+
+Default-First-Site-Name\vg-DC02
+DSA Options: 0x00000001
+DSA object GUID: 6f6632ea-9627-4ee1-9807-f7a308dc5fe0
+DSA invocationId: 7df84ec2-8cd4-4ed7-8749-ad6dc81f8ed6
+==== INBOUND NEIGHBORS ====
+DC=ForestDnsZones,DC=mydomain,DC=zz
+Default-First-Site-Name\vg-DC01 via RPC
+DSA object GUID: 59fb1742-aa5c-453e-ba2f-f49438f8c256
+Last attempt @ Mon Mar 2 16:45:14 2015 CET was successful
+0 consecutive failure(s).
+Last success @ Mon Mar 2 16:45:14 2015 CET
+DC=DomainDnsZones,DC=mydomain,DC=zz
+Default-First-Site-Name\vg-DC01 via RPC
+DSA object GUID: 59fb1742-aa5c-453e-ba2f-f49438f8c256
+Last attempt @ Mon Mar 2 16:45:14 2015 CET was successful
+0 consecutive failure(s).
+Last success @ Mon Mar 2 16:45:14 2015 CET
+DC=mydomain,DC=zz
+Default-First-Site-Name\vg-DC01 via RPC
+DSA object GUID: 59fb1742-aa5c-453e-ba2f-f49438f8c256
+Last attempt @ Mon Mar 2 16:45:14 2015 CET was successful
+0 consecutive failure(s).
+Last success @ Mon Mar 2 16:45:14 2015 CET 
+
+... ... ...
+
+# EOF

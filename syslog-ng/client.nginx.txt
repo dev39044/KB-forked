@@ -1,0 +1,46 @@
+# ====================================================================================
+# Valentin's remote logging setup
+
+# SOURCE. We will default s_src for logging messages, auth, syslog.
+# nginx sources follow below:
+source s_nginx_access.log { file("/opt/mydomain/nginx/logs/access.log"); };
+source s_nginx_error.log { file("/opt/mydomain/nginx/logs/error.log"); };
+source s_nginx_pay_mydomain_com_http_access.log { file("/opt/mydomain/nginx/logs/pay_mydomain_com_http_access.log"); };
+source s_nginx_pay_mydomain_com_https_access.log { file("/opt/mydomain/nginx/logs/pay_mydomain_com_https_access.log"); };
+source s_nginx_stage_pay_mydomain_com_http_access.log { file("/opt/mydomain/nginx/logs/stage_pay_mydomain_com_http_access.log"); };
+source s_nginx_stage_pay_mydomain_com_https_access.log { file("/opt/mydomain/nginx/logs/stage_pay_mydomain_com_https_access.log"); };
+
+# DESTINATION
+# daemon.log
+destination d_std_daemon { syslog("172.16.1.98" port(11696) transport("tcp")); };
+# syslog
+destination d_std_syslog { syslog("172.16.1.98" port(11697) transport("tcp")); };
+# auth.log
+destination d_std_auth { syslog("172.16.1.98" port(11698) transport("tcp")); };
+# messages
+destination d_std_messages { syslog("172.16.1.98" port(11699) transport("tcp")); };
+# error
+destination d_std_error { syslog("172.16.1.98" port(11700) transport("tcp")); };
+# nginx
+destination d_nginx_access.log { syslog("172.16.1.98" port(11701) transport("tcp")); };
+destination d_nginx_error.log { syslog("172.16.1.98" port(11702) transport("tcp")); };
+destination d_nginx_pay_mydomain_com_http_access.log { syslog("172.16.1.98" port(11703) transport("tcp")); };
+destination d_nginx_pay_mydomain_com_https_access.log { syslog("172.16.1.98" port(11704) transport("tcp")); };
+destination d_nginx_stage_pay_mydomain_com_http_access.log { syslog("172.16.1.98" port(11705) transport("tcp")); };
+destination d_nginx_stage_pay_mydomain_com_https_access.log { syslog("172.16.1.98" port(11706) transport("tcp")); };
+
+# LOGS. We will separate data sent via filters that are already defined by default.
+log { source(s_src); filter(f_messages); destination(d_std_messages); };
+log { source(s_src); filter(f_auth); destination(d_std_auth); };
+log { source(s_src); filter(f_syslog3); destination(d_std_syslog); };
+log { source(s_src); filter(f_error); destination(d_std_error); };
+log { source(s_src); filter(f_daemon); destination(d_std_daemon); };
+# nginx
+log { source(s_nginx_access.log); destination(d_nginx_access.log); };
+log { source(s_nginx_error.log); destination(d_nginx_error.log); };
+log { source(s_nginx_pay_mydomain_com_http_access.log); destination(d_nginx_pay_mydomain_com_http_access.log); };
+log { source(s_nginx_pay_mydomain_com_https_access.log); destination(d_nginx_pay_mydomain_com_https_access.log); };
+log { source(s_nginx_stage_pay_mydomain_com_http_access.log); destination(d_nginx_stage_pay_mydomain_com_http_access.log); };
+log { source(s_nginx_stage_pay_mydomain_com_https_access.log); destination(d_nginx_stage_pay_mydomain_com_https_access.log); };
+
+# ====================================================================================

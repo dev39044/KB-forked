@@ -1,0 +1,11 @@
+
+# This command scans /etc/network/interfaces file for 172.16. matches + the row beneath it, remove all white spaces till 1st word, remove all comment lines, format it # using cut, remove exact matches 255.255.0.0, then filter to show only masks, sed then removes empty lines and rows and finally we print server hostname.
+# This is used to find wrong masks in 172.16.x.x network in all servers in the DC. With the help of pssh.
+
+sed -e /172.16./,+1!d /etc/network/interfaces | sed "s/^[ \t]*//" | grep -v ^# | sed /^$/d |cut -d" " -f2 |grep -xv 255.255.0.0 |grep 255 '
+
+# Maybe a much easier way is with this:
+
+ifconfig |grep 172 |cut -d: -f4 | grep -vx 255.255.0.0 ; echo "=============" '
+
+

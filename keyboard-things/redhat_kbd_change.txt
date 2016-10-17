@@ -1,0 +1,14 @@
+If you want to change the KBD layout/map get into below file:
+
+vi /etc/sysconfig/keyboard
+
+KEYTABLE="us" or e.g "de"
+LAYOUT="us" or e.g "de"
+
+If you want to change system language:
+
+command echo $LANG will show you current language set.
+This could be changed in /etc/sysconfig/i18n file,
+but you could search for this file with:
+
+grep -iR utf /etc/sysconfig/

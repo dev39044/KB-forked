@@ -1,0 +1,29 @@
+# If you want to execute single/multiple commands to multiple servers via ssh, check this out:
+
+apt-get install pssh
+
+# Create a shortcut for pssh as seems it's missing and you have to use the long parallel-ssh, uh.
+
+ln -s /usr/bin/parallel-ssh /usr/bin/pssh
+
+# Before you start, change in /etc/ssh/ssh_config these options:
+StrictHostKeyChecking no
+HashKnownHosts no
+
+# When you use pssh, despite above ssh settings you'll still receive warnings about known_host files. Ignore them.
+# If you want to use a script, then you have to 1st copy it to ALL servers you want to execute it. But check below workarounds.
+
+# Examples: 
+
+# This command will:
+-A // ask for password, you can use RSA keys if you don't want to deal with passwords.
+-i // will display stdout & stderr on your console. If you skip it, you'll get only [SUCCESS] or [FAILURE] status for every server.
+-H // this is to specify single or multiple servers. You can use better option -h <srvlist.txt>
+-o // create relative stout folder with <hostname> files for every server. This is for stdout. 
+-e // same but for stderr.
+-l // use specific username for login
+"commands" // If you want to execute more that 1 remote command, you have to separate them with ; and quote them.
+ 
+pssh -A -l root -i -H "deb1 deb2" -o stout -e sterr "echo hi; hostname ; cat /etc/resolv.conf" 
+
+

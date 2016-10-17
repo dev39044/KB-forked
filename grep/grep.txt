@@ -1,0 +1,95 @@
+# grep is regex aware. The letter "A" is a regex matching itself.
+# Meta chars "?" "+" "*" "{n}" "{n,}" "{,m}" "{n,m}" are REPETITION operators. Check them for
+# detailed explanation in the man page). This means that they MUST repeat someting, 
+# i.e at least a single char (regex).
+
+grep -E "?" /path/to/file -- this will match NOTHING, because there is nothing before "?" .
+grep -E "a?" /path/to/file -- this will MATCH the regex "a" zero or at most once.
+
+#####################################################################################################
+EXAMPLES:
+1. greptest is a file, containing:
+
+val@trabant:~$ cat greptest 
+A B C D
+a ab abc
+AabBcCdDeE
+aaaa
+aaaaa
+CCCCCC
+1.1.1.1
+123.123.123.123
+123.12.1.0
+123.1.1
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# this will match any of the regex "a" below:
+
+val@trabant:~$ grep -E "a?" greptest
+
+a ab abc
+AabBcCdDeE
+aaaa
+aaaaa
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# to match ONLY whole words containing "a" at most once, use -w parameter:
+ 
+val@trabant:~$ grep -Ew "a?" greptest 
+a ab abc  -- here the match is only "a", but ab and abc are printed, because they are on the same line.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# to match regex "C" at least 3 times, use below expression:
+
+val@trabant:~$ grep -Ew "C{3,}" greptest 
+CCCCCC
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# to match regex "C" at lease 3 times OR regex "a" EXACTLY 4 times, use below expression:
+
+val@trabant:~$ grep -Ew "C{3,}|a{4}" greptest 
+aaaa
+CCCCCC
+
+#####################################################################################################
+
+# To match any IP address in a file, use the below construction:
+
+grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"  /etc/resolv.conf
+
+# Let's explain it in details:
+# 1. grep -E  -- turns on "extended" grep version, i.e to understand the 
+# meta characters like ? + { | ( ). 
+# 2. We use "" in order to escape the expression from the shell expanding.
+# This means that BASH will also EXPAND these meta characters but in different way
+# and more important - BEFORE this string will reach grep binary tool, the 
+# SHELL will expand some of the meta chars and will change the expression.
+# 3. [0-9] means, match any SINGLE digit from the range 0 to 9 inclusive. But we
+# need this expression to match ANY ip address between the range 0-255, right? So,
+# we add {1,3} which means REPETITION operation of the first range. I.e first range
+# will match at least ONE and max THREE times. If we want this 1st range to match
+# zero or max 1 time, we'll use metachar "?". Char "+" means repeat ONE or MORE,
+# "*" means ZERO or MORE. SEE man grep for more info.
+######################################################################################################
+
+# To find ANY of the matching words you can use below expression. Note that "|" is
+# used in grep for ALTERNATION, i.e "match EITHER of mentioned strings".
+
+grep -Ewi --color 'warning|error|critical' /var/log/messages
+
+-E -- have been explained above.
+-w -- means to match any string that form a word NOT preceeded by letter, digit or _
+-i -- means to ignore case sensitivity.
+
+#######################################################################################################
+
+# To match ANY valid IP address in a folder, use below expression:
+
+grep -ERx "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"  /etc
+
+-R -- means to search in any (sub)folders below /etc and follow SYMLINKS. This is important when your 
+file /etc/resolv.conf is symlink for example. "-r" is the same BUT do not follow symlinks. 
+-x -- means to match EXACTLY mentioned string on the whole line, i.e if you have just a single space
+in the beggining of the line, then the match will not be true and will not be shown.
+
+
+

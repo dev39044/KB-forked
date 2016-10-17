@@ -1,0 +1,28 @@
+This link explains everything, about accessing LAN services from LAN via WAN IP.
+
+http://wiki.mikrotik.com/wiki/Hairpin_NAT
+
+The point is to make an additional SNAT rule, like this:
+
+/ip firewall nat
+add chain=srcnat src-address=192.168.1.0/24 \
+ dst-address=192.168.1.2 protocol=tcp dst-port=80 \
+ out-interface=LAN action=masquerade
+ 
+ Simply said, the problem comes from this:
+ 
+ Client:	192.168.1.10
+ Web-srv:	192.168.1.50
+ Mik-local:	192.168.1.1
+ Mik-wan:	10.20.20.205
+ 
+ So, when client send a request to Web-srv via WAN IP, we have the following chart:
+ 
+ SRC				DEST
+ 192.168.1.10		10.20.20.205:80
+ 192.168.1.10		192.168.1.50:80
+ all seems OK, except when packet need to go back.
+ 
+ 192.168.1.50		192.168.1.10 - HERE IS THE PROBLEM. Client expects an reply from Mik-wan, 
+ not directly from Web-srv. To overcome this, you need above SNAT rule.
+ 

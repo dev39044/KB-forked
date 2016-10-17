@@ -1,0 +1,126 @@
+#!/bin/bash
+
+################################### SCRIPT USAGE ####################################
+#
+# You have to use this script to restore ALL Domain Controllers at the same time!
+# Otherwise you can destroy the whole domain!
+# Also this script intends that you have used dar tool for backup :) 
+# 
+# 1. Check that you have backups from the same date & time on ALL DCs.
+# They should be in /opt/mydomain/backups folder.
+#
+# 2. Stop samba-ad-dc service on ALL DCs.
+#
+# 3. It's good to make backup just before the restore (if possible). 
+#
+# 4. Check if all below vars are correctly set for your env.
+#
+# 5. Execute this script and for $1 give the most recent backup name without ".1.dar" extention.
+#
+# E.g. if you want to restore "samba4-bkp-vg-dc01-17-Feb-2015.1.dar" backup file, then type:
+#
+# ./samba-restore.sh samba4-bkp-vg-dc01-17-Feb-2015
+#
+# Repeat on ALL DCs.
+#
+# 6. Start DCs in debug mode in order to check if everything is okay.
+# you can do that with: 
+# 	-- 1st stop the service with "server samba-ad-dc stop"
+# 	-- now start it with "/opt/mydomain/samba/sbin/samba -i -d 3"
+#
+# 7. After the checks you can stop Samba from debug mode and run it normally.
+#
+# Hope everything is okay after the restore!
+#
+#
+# If you need more info dar tool --> man dar
+###################################################################################
+
+# Defining a bit of vars
+
+SRC=/opt/mydomain/samba
+DEST=/opt/mydomain/backups
+DATE=$(date +%d-%b-%Y-%R)
+BNAME=$(echo -n $1 |cut -d. -f1)
+
+# ------------------
+
+# Checking if positional parameter 1 has been supplied.
+
+if [ -z "$1" ] ; then
+        echo "Usage: $0 <backup file>"
+        exit 1
+fi
+echo ""
+######################################
+echo -e "\e[1m Changing current working directory to $DEST \e[0m"
+cd $DEST
+pwd
+######################################
+echo -e "\e[1m Checking backup file integrity... \e[0m"
+dar -t "$BNAME" >restore_$DATE.out 2>&1
+if [ "$?" = 0 ] ; then
+        echo -e "\e[32m --> Backup file integrity check done! \e[0m"
+else
+        echo -e "\e[31m --> Backup file integrity check failed! \e[0m"
+        exit 1
+fi
+echo ""
+##################################### 
+echo -e "\e[1m Checking if Samba service is running... \e[0m"
+/etc/init.d/samba-ad-dc status  >/dev/null 2>&1
+if [ "$?" = 0 ] ; then
+        echo -e "\e[31m --> Samba service is running! Please stop it and re-run the script. \e[0m"
+        exit 1
+else 
+        echo -e "\e[32m --> Samba service is not running. \e[0m"
+fi
+echo ""
+#################################### 
+echo -e "\e[1m Checking if etc/ private/ or var/ folders exist in current directory... \e[0m"
+if [ -d etc ] ; then
+        echo -e "\e[31m Folders etc/ private/ or var/ cannot exist in current directory! \e[0m"
+        echo -e "\e[31m Please rename these folders and re-run this script. \e[0m"
+        exit 1
+fi
+if [ -d private ] ; then
+        echo -e "\e[31m Folders etc/ private/ or var/ cannot exist in current directory! \e[0m"
+        echo -e "\e[31m Please rename these folders and re-run this script. \e[0m"
+        exit 1
+fi
+if [ -d var ] ; then
+        echo -e "\e[31m Folders etc/ private/ or var/ cannot exist in current directory! \e[0m"
+        echo -e "\e[31m Please rename these folders and re-run this script .\e[0m"
+        exit 1
+fi
+echo ""
+####################################
+echo -e "\e[1m Renaming current Samba folders... \e[0m"
+mv -v $SRC/etc $SRC/etc-old-from-$DATE
+mv -v $SRC/private $SRC/private-old-from-$DATE
+mv -v $SRC/var $SRC/var-old-from-$DATE
+echo ""
+####################################
+echo -e "\e[1m Extracting backup folders from archive ... \e[0m" | tee -a restore_$DATE.out
+dar -v -x $BNAME >>restore_$DATE.out 2>&1
+
+if [ "$?" = 0 ] ; then
+        echo -e "\e[32m --> Extraction was successful! \e[0m"
+else
+        echo -e "\e[31m --> Extraction failed! Check restore_$DATE.out file for details. \e[0m"
+        exit 1
+fi
+####################################
+echo -e "\e[1m Moving extracted folders back to their original place... \e[0m"
+mv -v etc $SRC/
+mv -v private $SRC/
+mv -v var $SRC/
+echo ""
+####################################
+echo -e "\e[1m Renaming all *.bak files back to their orignal names... \e[0m"
+find $SRC/private -type f -name '*.ldb.bak' -print0 | while read -d $'\0' f ; do mv -v "$f" "${f%.bak}" ; done 
+
+echo ""
+echo -e "\e[101m DO NOT FORGET THAT BACKUP RESTORE SHOULD BE DONE ON ALL DCs! \e[0m"
+echo -e "\e[32m Done! \e[0m"
+####

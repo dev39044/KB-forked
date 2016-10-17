@@ -1,0 +1,28 @@
+Setup SYSVOL replication
+Sadly samba 4 doesn't support replication of the SYSVOL directory yet so we need to address this. The way I chose to achieve a bidirectional synchronization is with "unison". Required for this to work is that both server can use SSH commands without password. I won't write the steps how to setup authorized keys authentication for SSH. Just setup SSH for the root user to connect to each other servers.
+
+Install unison on both servers
+
+aptitude install unison
+On the SDC create following configuration file
+
+samba-sdc
+nano /root/.unison/default.prf
+
+root@vg-dc02:~# cat /root/.unison/default.prf 
+# Unison preferences file
+root = ssh://vg-dc01//opt/mydomain/samba/var/locks/sysvol
+root = /opt/mydomain/samba/var/locks/sysvol
+batch = true
+owner = true
+auto = true
+logfile = /var/log/unison.log
+Just start unison to see if it works
+
+unison
+If it does , create a cronjob that syncs every minute
+
+# set MAILTO env var to NULL in crontab. This prevents some unwanted emails.
+MAILTO=""
+  
+ */3 * * * * /usr/bin/unison

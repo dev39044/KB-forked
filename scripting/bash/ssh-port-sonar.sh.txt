@@ -1,0 +1,21 @@
+
+# You can use this script to test if port 22 or X is open for specific IP range.
+# Note that you have to have this ip range listed in result.txt file.
+
+#!/bin/bash
+
+rm result.txt 2>/dev/null
+for i in `cat fip.list`; do
+        nc -vz -w 3 $i 22 >/dev/null 2>&1
+        if [ $? = 0 ] ; then
+                echo "$i:22"  |tee -a result.txt
+        else 
+                nc -vz -w 3 $i 22001 >/dev/null 2>&1
+                if [ $? = 0 ] ; then
+                        echo "$i:22001"  |tee -a result.txt
+                else
+                        echo "$i" port UNKNOWN |tee -a result.txt       
+                fi
+        fi
+done  
+

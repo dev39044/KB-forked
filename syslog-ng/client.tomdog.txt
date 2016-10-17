@@ -1,0 +1,47 @@
+# ====================================================================================
+# Valentin's remote logging setup
+
+# SOURCE. We will use default s_src for logging standard facilities.
+# tomcat
+source s_tomcat_catalina.out { file("/opt/mydomain/tomcat/logs/catalina.out"); };
+source s_tomcat_fact.log { file("/opt/mydomain/tomcat/logs/fact.log"); };
+source s_tomcat_cms.log { file("/opt/mydomain/tomcat/logs/cms.log"); };
+source s_tomcat_registry.log { file("/opt/mydomain/tomcat/logs/registry.log"); };
+source s_tomcat_erp.log { file("/opt/mydomain/tomcat/logs/erp.log"); };
+source s_tomcat_import.log { file("/opt/mydomain/tomcat/logs/import.log"); };
+
+# DESTINATION
+# daemon.log
+destination d_std_daemon { syslog("172.16.1.98" port(11696) transport("tcp")); };
+# syslog
+destination d_std_syslog { syslog("172.16.1.98" port(11697) transport("tcp")); };
+# auth.log
+destination d_std_auth { syslog("172.16.1.98" port(11698) transport("tcp")); };
+# messages
+destination d_std_messages { syslog("172.16.1.98" port(11699) transport("tcp")); };
+# error
+destination d_std_error { syslog("172.16.1.98" port(11700) transport("tcp")); };
+# tomcat
+destination d_tomcat_catalina.out { syslog("172.16.1.98" port(11709) transport("tcp")); };
+destination d_tomcat_fact.log { syslog("172.16.1.98" port(11710) transport("tcp")); };
+destination d_tomcat_cms.log { syslog("172.16.1.98" port(11711) transport("tcp")); };
+destination d_tomcat_registry.log { syslog("172.16.1.98" port(11712) transport("tcp")); };
+destination d_tomcat_erp.log { syslog("172.16.1.98" port(11713) transport("tcp")); };
+destination d_tomcat_import.log { syslog("172.16.1.98" port(11714) transport("tcp")); };
+
+
+# LOGS. We will separate data sent via filters that are already defined by default.
+log { source(s_src); filter(f_messages); destination(d_std_messages); };
+log { source(s_src); filter(f_auth); destination(d_std_auth); };
+log { source(s_src); filter(f_syslog3); destination(d_std_syslog); };
+log { source(s_src); filter(f_error); destination(d_std_error); };
+log { source(s_src); filter(f_daemon); destination(d_std_daemon); };
+# tomcat
+log { source(s_tomcat_catalina.out); destination(d_tomcat_catalina.out); };
+log { source(s_tomcat_fact.log); destination(d_tomcat_fact.log); };
+log { source(s_tomcat_cms.log); destination(d_tomcat_cms.log); };
+log { source(s_tomcat_registry.log); destination(d_tomcat_registry.log); };
+log { source(s_tomcat_erp.log); destination(d_tomcat_erp.log); };
+log { source(s_tomcat_import.log); destination(d_tomcat_import.log); };
+
+# ====================================================================================

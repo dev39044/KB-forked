@@ -1,0 +1,84 @@
+#############
+#	Loops 	#
+#############
+1. cd to dir in which you wanna find du of all subfolders:
+
+for i in $(ls) ; do /usr/bin/du -cm $i ; done  // this could be used to show you disk usage of all listed folders
+
+if [ ] ; then
+ 	...
+else
+	...
+fi
+#################
+# env vs set?	#
+#################
+What is an environment variable?
+-- This is a global variable, i.e accessible to the whole System / Apps / Shells
+What is an local environment variable?
+-- This is a local var and is accessible to current shell only.
+
+Defining varibables:
+a=1 ; echo $a // will give result 1 , which is local variable.
+
+env is a program, set is shell built-in, so set "sees" both global and local env.
+export a=1 is a global (environmental) variable.
+
+##################
+# BASH LS_COLORS #
+##################
+alias ls='ls --color'
+LS_COLORS='di=1:fi=0:ln=31:pi=5:so=5:bd=5:cd=5:or=31:mi=0:ex=35:*.rpm=90'
+export LS_COLORS
+
+#########################
+# Positional parameters	#
+#########################
+
+$? - this is the exit status of last executed program
+$* - Always escape with "" this! It will expand to all positional parameters as a single word. (see example below)
+$@ - Always escape with "" this! It will expand to all positional parameters as separate words. (see example below)
+$_ - shows last parameter of the last executed command. E.g. echo $_ will show "output.txt" if you had executed right before "tail -f output.txt"
+$# - shows the sum of all positional parameters as decimal number without counting $0
+$0 - this is the first positional parameter that shows the name of currently executing script
+${10} - this is the 10th positional parameter. $10 won't work as it will be translated to $1+"0"
+################################################################################################################
+# ${!#} - this will show you the name of the last positional parameter. ${! means indirect reference 
+# A bit ot theory about that:
+# If the first character of parameter is an exclamation point (!), a level of variable indirection is introduced. Bash uses the value of the variable formed from the rest of parameter as the name of the # variable; this variable is then expanded and that value is used in the rest of the substitution, rather than the value of parameter itself. This is known as indirect expansion.
+# However, reading on from there:
+# 
+# The exceptions to this are the expansions of ${!prefix*} and ${!name[@]} described below.
+# 
+# ${!prefix*} Names matching prefix. Expands to the names of variables whose names begin with prefix, separated by the first character of the IFS special variable.
+# In other words, your particular example ${!N*} is an exception to the rule you quoted. It does, however, work as advertised in the expected cases, such as:
+# 
+# $ export xyzzy=plugh ; export plugh=cave
+# 
+# $ echo ${xyzzy}  # normal, xyzzy to plugh
+# plugh
+# 
+# $ echo ${!xyzzy} # indirection, xyzzy to plugh to cave
+# cave
+###########################################################################################################################################################################
+# $* VS $@
+
+Syntax	Effective result
+$*	$1 $2 $3 … ${N}
+$@	$1 $2 $3 … ${N}
+"$*"	"$1c$2c$3c…c${N}"
+"$@"	"$1" "$2" "$3" … "${N}"
+
+Without being quoted (double quotes), both have the same effect: All positional parameters from $1 to the last one used are expanded without any special handling.
+
+When the $* special parameter is double quoted, it expands to the equivalent of: "$1c$2c$3c$4c……..$N", where 'c' is the first character of IFS.
+
+But when the $@ special parameter is used inside double quotes, it expands to the equivanent of…
+
+"$1" "$2" "$3" "$4" ….. "$N"
+
+…which reflects all positional parameters as they were set initially and passed to the script or function. If you want to re-use your positional parameters to call another program (for example in a wrapper-script), then this is the choice for you, use double quoted "$@".
+
+Well, let's just say: You almost always want a quoted "$@"!
+
+

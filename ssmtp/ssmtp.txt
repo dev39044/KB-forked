@@ -1,0 +1,30 @@
+
+# 1. apt-get install ssmtp
+# 2. mkdir /etc/ssmtp
+# 3. vi /etc/ssmtp/ssmtp.conf and put this info there:
+
+# This is the from line
+root=<YOUR-EMAIL-ACCOUNT>
+mailhub=smtp.gmail.com:587
+UseTLS=YES
+UseSTARTTLS=YES
+AuthUser=<YOUR-EMAIL-ACCOUNT>
+AuthPass=<PASSWORD>
+AuthMethod=LOGIN
+# any server hostname
+hostname=<JUST-A-DESCRIPTIVE-NAME>
+FromLineOverride=YES
+
+# If you want to send email from script using SSMTP, do the following:
+
+# apt-get install uuencode
+
+# Then change the fields below accordingly:
+
+# echo -e 'From: srv1@mydomain.com\nTo: to@mydomain.com\nSubject: Errors in BKP!\n\nCheck attached file!'|uuenview -a -bo output.txt|sendmail -t
+
+# smtp.gmail.com
+# Port 465 (SSL required)
+# Port 587 (TLS required)
+
+

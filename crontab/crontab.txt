@@ -1,0 +1,54 @@
+### CRON(TAB)
+
+1. CRONTAB time position rules:
+
+### Here I'll explain crontab tables, i.e all five time positions * * * * * 
+
+from left to right they are:
+
+TIME POSITIONS:	minutes 	# hours 	# day of month 		# month 	# day of week #
+TIME RANGES: 	<0-59>		<0-23>	  	<1-31> 	 		<1-12>		<0-7>
+You need to remember the following rules in order to quickly remember crontab rules.
+
+1.1 * (asterisks) - this define a RANGE, which means that * and 0-59 (or any of the ranges) is the same thing.
+1.2 You can use lists, i.e values separated with comas. EX.  1,2,4,22,58 (this is for minutes)
+1.3 You can use STEPS. STEPS ARE VERY IMPORTANT TO UNDERSTAND and they work only IN THE RANGE!
+
+Steps work as "skips" and ALWAYS start FROM beginning of the range till the END of the range. See examples below.
+
+Run cmd command every 37 minutes:
+
+*/37 * * * * cmd  // this will run at below times:
+
+2014-03-19 10:37:00
+2014-03-19 11:00:00
+2014-03-19 11:37:00
+2014-03-19 12:00:00
+2014-03-19 12:37:00
+2014-03-19 13:00:00
+2014-03-19 13:37:00
+2014-03-19 14:00:00
+
+Note that possible minutes are only 0th and 37th. 
+SKIPS DO NOT WORK this way: e.g. now is 11:00 h and you add +37 minutes, then again +37 minutes and calculated time will be 12:14 h --- NO, THIS IS WRONG.
+
+You can use site http://cron.schlitt.info/ to test your crontab time tables.
+
+2. CROND daemon:
+
+- crond daemon runs every minute.
+- you can have MANY rows with different scripts, tasks etc.
+- For ALL users there is ONLY one crontab file in /var/spool/cron.
+- You can use /etc/cron.allow & /etc/cron.deny to manage crontab usage for users.
+This 2 files work like this: 
+	- if cron.allow exists then you need to add explicitly users in order they to use crontab.
+	- if cron.deny exists then you need to explicitly list users WHICH should be RESTRICTED of using crontab.
+	- if neither of these 2 files exists, then only root or ALL users are allowed to use crontab, OS dependant.
+
+3. Systems files:
+- Folders like /etc/cron.hourly/* /etc/cron.monthly/* ... are systems crond folders.
+
+
+
+
+

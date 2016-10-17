@@ -1,0 +1,13 @@
+#### SET DATE/TIME ###
+
+date +%d%b%Y -s 17-Oct-2013
+date +%T -s 16:44
+
+# ECHO date
+
+[root@PC]# date +%a_%d_%b_%R
+Tue_27_Sep_15:56
+
+root@moskvich:~# date +%d.%b.%Y
+28.Sep.2016
+

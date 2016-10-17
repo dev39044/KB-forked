@@ -1,0 +1,34 @@
+# ====================================================================================
+# Remote logging setup
+
+# SOURCE. We will default s_src for logging messages, auth, syslog.
+# apache2 sources follow below:
+source s_apache2_access.log { file("/var/log/apache2/access.log"); };
+source s_apache2_error.log { file("/var/log/apache2/error.log"); };
+
+# DESTINATION
+# daemon.log
+destination d_std_daemon { syslog("172.16.1.98" port(11696) transport("tcp")); };
+# syslog
+destination d_std_syslog { syslog("172.16.1.98" port(11697) transport("tcp")); };
+# auth.log
+destination d_std_auth { syslog("172.16.1.98" port(11698) transport("tcp")); };
+# messages
+destination d_std_messages { syslog("172.16.1.98" port(11699) transport("tcp")); };
+# error
+destination d_std_error { syslog("172.16.1.98" port(11700) transport("tcp")); };
+# apache2
+destination d_apache2_access.log { syslog("172.16.1.98" port(11707) transport("tcp")); };
+destination d_apache2_error.log { syslog("172.16.1.98" port(11708) transport("tcp")); };
+
+# LOGS. We will separate data sent via filters that are already defined by default.
+log { source(s_src); filter(f_messages); destination(d_std_messages); };
+log { source(s_src); filter(f_auth); destination(d_std_auth); };
+log { source(s_src); filter(f_syslog3); destination(d_std_syslog); };
+log { source(s_src); filter(f_error); destination(d_std_error); };
+log { source(s_src); filter(f_daemon); destination(d_std_daemon); };
+# apache2
+log { source(s_apache2_access.log); destination(d_apache2_access.log); };
+log { source(s_apache2_error.log); destination(d_apache2_error.log); };
+
+# ====================================================================================

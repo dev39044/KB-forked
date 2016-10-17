@@ -1,0 +1,42 @@
+# In order to sort files like this:
+
+cwcch10.pdf
+cwcch11.pdf
+cwcch12.pdf
+cwcch13.pdf
+cwcch14.pdf
+cwcch15.pdf
+cwcch16.pdf
+cwcch17.pdf
+cwcch18.pdf
+cwcch1.pdf
+cwcch2.pdf
+cwcch3.pdf
+cwcch4.pdf
+cwcch5.pdf
+cwcch6.pdf
+cwcch7.pdf
+cwcch8.pdf
+cwcch9.pdf
+
+# you need to use command "ls -vl" in which -v means natural sort of (version) numbers within text.
+# Then result is as follows:
+
+cwcch1.pdf
+cwcch2.pdf
+cwcch3.pdf
+cwcch4.pdf
+cwcch5.pdf
+cwcch6.pdf
+cwcch7.pdf
+cwcch8.pdf
+cwcch9.pdf
+cwcch10.pdf
+cwcch11.pdf
+cwcch12.pdf
+cwcch13.pdf
+cwcch14.pdf
+cwcch15.pdf
+cwcch16.pdf
+cwcch17.pdf
+cwcch18.pdf  

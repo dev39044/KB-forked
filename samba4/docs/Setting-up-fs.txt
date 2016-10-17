@@ -1,0 +1,98 @@
+Goals
+
+Main goal is to have a Linux file server with Xattr and ACLs support. To be joined into mydomain.zz domain and have correct settings on /data share. 
+
+
+
+	
+We assume you have already installed Debian OS.
+Additional packages for install
+apt-get install samba winbind cifs-utils smbclient krb5-user libpam-krb5 sudo
+ 
+
+vg-FS smb.conf file:
+root@vg-fs:~# cat /etc/samba/smb.conf
+[global]
+ security = ads
+ realm = mydomain.ZZ
+# Below parameter could contain entries with space separated, i.e ip addresses of other DCs. Note that their is some delay ~3-4secs. when the 1st DC is down.
+ password server = 192.168.1.30 192.168.1.31
+# note that workgroup is the 'short' domain name
+ workgroup = mydomain
+# winbind separator = +
+ idmap uid = 50000-60000
+ idmap gid = 50000-60000
+ winbind enum users = yes
+ winbind enum groups = yes
+ template homedir = /home/%D/%U
+ template shell = /bin/bash
+ client use spnego = yes
+ client ntlmv2 auth = yes
+ encrypt passwords = yes
+ winbind use default domain = yes
+ restrict anonymous = 2
+# Additional parameter ONLY FOR DOMAIN MEMBERS ... NOT FOR DCs!!!
+ vfs objects = acl_xattr
+ map acl inherit = Yes
+ store dos attributes = Yes 
+[data]
+ path = /data
+ read only = No
+ 
+
+Reload the samba service that it knows about the new share(s)
+
+smbcontrol all reload-config
+Before the shares can be configured using the known windows tools the administrators need a special privilege to manipulate security settings on file shares. This is added the following way
+
+net rpc rights grant 'mydomain\Domain Admins' SeDiskOperatorPrivilege -Uadministrator
+Now every user in the "Domain Admins" group can configure shares. This only needs to be done once
+
+Permission management
+Well, the easiest way is via Windows Explorer. Always use "Advanced Settings" on the security tab! No need for more explanations.
+
+ 
+
+/data share
+Read and write groups have been created for every department (e.g. Sales_R and Sales_RW)
+Default groups for every share should include following groups: Domain Admins and <Department>_R(+RW) 
+ 
+
+/etc/pam.d/* configuration for vg-FS
+root@vg-fs:/etc/pam.d# grep -v ^# common-account 
+account [success=2 new_authtok_reqd=done default=ignore] pam_unix.so 
+account [success=1 new_authtok_reqd=done default=ignore] pam_winbind.so 
+account requisite pam_deny.so
+account required pam_permit.so
+account required pam_krb5.so minimum_uid=1000
+  
+root@vg-fs:/etc/pam.d# grep -v ^# common-auth  
+auth [success=3 default=ignore] pam_krb5.so minimum_uid=1000
+auth [success=2 default=ignore] pam_unix.so nullok_secure try_first_pass
+auth [success=1 default=ignore] pam_winbind.so krb5_auth krb5_ccache_type=FILE cached_login try_first_pass
+auth requisite pam_deny.so
+auth required pam_permit.so
+  
+root@vg-fs:/etc/pam.d# grep -v ^# common-password 
+password [success=3 default=ignore] pam_krb5.so minimum_uid=1000
+password [success=2 default=ignore] pam_unix.so obscure use_authtok try_first_pass sha512
+password [success=1 default=ignore] pam_winbind.so use_authtok try_first_pass
+password requisite pam_deny.so
+password required pam_permit.so
+ 
+root@vg-fs:/etc/pam.d# grep -v ^# common-session
+session [default=1] pam_permit.so
+session requisite pam_deny.so
+session required pam_permit.so
+session optional pam_krb5.so minimum_uid=1000
+session required pam_unix.so 
+session required pam_mkhomedir.so umask=0022 skel=/etc/skel
+session optional pam_winbind.so
+ 
+
+Backup
+Well, we can use vgFS (without `-` dash) backup script that is based on Rsync and just to add -A -X (this includes ACLs and xattrs), e.g.
+
+rsync --progress --stats -avhzAX /backup/shares root@samba-fs:/backup
+
+#EOF

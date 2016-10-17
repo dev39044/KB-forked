@@ -1,0 +1,39 @@
+################
+# rsync vs scp #
+################ 
+-- rsync is better:
+
+1. Rsync continue where it stopped.
+2. Will not replace a file if you don't use --delete option, scp will.
+3. Can SYNC files, scp just copy the whole file.
+
+######################
+# Rsync simple usage #
+######################
+rsync <SOURCE> <DESTINATION>
+
+rsync 192.168.15.105:/usr/share/zoneinfo/Europe/Sofia /usr/share/zoneinfo/Europe/Sofia
+
+If ":" is used, then ssh is involved, if "rsync://" is used then rsync daemon is used.
+
+##########################
+# COPY EXAMPLE FOR RSYNC #
+##########################
+rsync -rv --progress /dir/dir1/dir2/ /newdest/   // this will copy all files and folders from dir2 to newdest WITHOUT dir2 ITSELF!
+note that there is a TRAILING BACKSLASH after dir2 + verbose + show progress.
+
+rsync -rv --progress /dir/dir1/dir2 /newdest/    // this will copy the WHOLE dir2 + all files and folders in it recursively + verbose + show progress.NOTE THAT THIS IS NOT bit by bit copy, i.e like permissions, symbolic links etc. Use cp -va /source /dest to copy REALLY 
+
+#########################
+# rsync command options #
+#########################
+
+
+-L 				// is used to replace all symlinks with their pointers. I.e if you have symlink1-->/pointing/to/dir1 , then on destination you'll have symlink1 folder with all files from dir1.		
+				// note that the name of your symlink will be the actual name of the "newly created" directory.
+-l				// Copy symlinks as symlinks, nothing special here.
+--del           // an alias for --delete-during. This is the best option to keep synced 2 dirs in case file transfer is interrupted.
+--delete-before // is used to delete all extra files in destination place before transferm not during.
+--delete        // delete extraneous files from dest dirs. According to stackoverflow this is OS dependant WHEN files get deleted.
+
+

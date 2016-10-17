@@ -1,0 +1,58 @@
+Tests that you need to read before going for a restore!
+What have been tested and what results we've got?
+
+Join a fresh DC and let internal sync to do it's job.
+Sync of SYSVOL folder using unison
+Restore of a single AD object.
+Transfer or seizing FSMO roles
+Disaster recovery, backup & restore procedure
+Explanation of above steps will help you to decide how to react in case of emergency / drama / issue etc.
+     1. Join a fresh DC and let internal sync to do it's job:
+ This step passed without any issues. You need to install samba, promote it as DC and let the Samba internal sync to do the job of syncing.
+Also if a DC is crashed completely, it's better to recreated it and join like a new one, instead of restoring! NEVER RESTORE ONLY A SINGLE DC! YOU CAN MAKE A MESS!
+
+     2.  Sync of SYSVOL folder using unison:
+
+   This step also passed as expected. Take a look over the "design" that need to exist for Unison. When we have 4 DCs we need to install unison on everyone of them. Then we need to set it up like this:
+
+     DC2 --> DC1 // this means that we need to tell DC2 to sync only to DC1 ... This is a bi-directional sync.
+
+     DC1 --> DC3
+
+     DC3 --> DC4
+
+     DC4 --> DC2
+
+In this configuration it doesn't matter which server will be down, the others will still be able to sync from each other.
+
+   3. Restore of a single AD object:
+
+   Restore of a single AD object in Samba is NOT possible. This is because the object is located in many small databases in private Samba folder. If you try to create it from scratch then this object will have DIFFERENT GUID, SID, etc...So it will not be the same object.
+
+   I also tried to change manually all needed info like SID, GUID etc, but the fact that this object is located in different DBs with different layout, restoring in this way is hazardous and not recommended by Samba Dev team! Check step 5 for restoring a single object.
+
+  4. Transfer or seizing FSMO roles:
+
+  ALWAYS try to transfer FSMO roles, instead of seizing them. Why? Because this could lead to domain mis-configuration if the original owner of FSMO roles is restored back. I.e we will have 2 FSMO owners of the same roles, which is wrong. If you need however to seize a role or all roles, then the original DC should never be in this domain anymore.
+
+I tested to transfer FSMO roles and it is quite simple with samba-tool fsmo transfer <role> . This should be executed from receiver DC.
+
+  5. Disaster recovery, backup & restore procedure:
+
+ Well, this scenario is valid if our office or data center still exist :) So, this backup scenario could be used in restoring a single AD object or restoring the whole domain. In any of these 2 cases we do FULL domain restore. These are the steps:
+
+      - On every DC we will have e.g. /opt/mydomain/samba installation. Also we will backup e.g. in /opt/mydomain/backups folder.
+
+Every DC should have it's own backup in this folder. 
+Note that you MUST restore every DC from its own backup set from the same time, e.g. bkp_hostname_day_time.
+There will be a short downtime of domain services during restore as ALL samba services on ALL DCs should be stopped!
+apt-get install dar   // this tool is used for backup and should exist on every DC. This tool has been chosen because it can preserve xattr+acls.
+I have used these scripts in order to do backup & restore.
+
+Backup script: samba-backup.sh.txt  // don't forget to remove *.txt extention
+
+Restore script: samba-restore.sh.txt  // don't forget to remove *.txt extention
+
+Simply explained, backup script is backing up these folders: etc/* private/* and var/* from Samba installation root. Restore script simply restore them :) ... check scripts for more details and settings.
+
+#EOF

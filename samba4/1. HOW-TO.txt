@@ -1,0 +1,53 @@
+1. You need acl, xattr file systems support.
+2. Install all of these: 
+
+	apt-get install acl attr autoconf build-essential docbook-xsl dnsutils gdb git inkscape ldap-utils libacl1-dev libattr1-dev libblkid-dev libgnutls-dev libreadline-dev  libpam0g-dev libpam0g-dev  libpopt-dev libldap2-dev  libbsd-dev  krb5-user  libcups2-dev python-dev python-dnspython  pkg-config  xsltproc  
+
+
+3. Add this to /etc/fstab
+
+For filesystems of that type shared by Samba, add the following options to your /etc/fstab:
+/dev/...          /srv/samba/demo          ext4          user_xattr,acl,barrier=1          1 1
+Note: The „barrier=1“ option ensures that tdb transactions are safe against unexpected power loss.
+
+4. Download and compile Samba:
+
+git clone -b v4-1-stable git://git.samba.org/samba.git samba-v4-1-stable
+
+./configure --enable-debug --enable-selftest --prefix=/opt/mydomain
+make
+make install
+
+@@@@@@@@@@@@
+REBOOT !!! @
+@@@@@@@@@@@@
+ 
+5. Set up the following tasks:
+
+- enable the service to run at boot:
+
+update-rc.d samba-ad-dc start
+
+- copy the startup script in /etc/init.d/ ... make it executable :) 
+
+- fix the PATH environment in /etc/profile like: 
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/samba/bin:/usr/local/samba/sbin
+
+- add /etc/fstab entry, but mkdir /samba before that:
+/usr/local/samba /samba	none bind 0 0 
+
+- root@deb1:/samba# cat /etc/resolv.conf 
+nameserver 192.168.56.11
+domain vg.local
+
+6. Samba domain provisioning:
+
+samba-tool domain provision --option="interfaces=lo eth0" --option="bind interfaces only=yes" --use-rfc2307 --interactive
+
+7. How to join second domain controller in the domain:
+ 
+samba-tool domain join mydomain.zz DC -Uadministrator --realm=mydomain.zz 
+
+NOTE: Before to join it, check /etc/resolv.conf, hostname -f, /etc/hosts, /etc/krb5.conf, etc ...
+
+

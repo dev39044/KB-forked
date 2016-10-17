@@ -1,0 +1,88 @@
+#########################################################
+#	Good explanation of Passive/Active FTP modes: 		#
+#   													#
+# http://slacksite.com/other/ftp.html					#
+#														#
+# Active FTP :											#
+#    command : client >1023 -> server 21 IN				#
+#    data    : client >1023 <- server 20 OUT			#
+#														#
+# Passive FTP :											#
+#    command : client >1023 <-> server 21   IN/OUT		#
+#    data    : client >1024 -> server >1023  IN			#
+#														#
+#														#
+#														#
+# 1. Active FTP:										#####################################################
+#													  														#
+# Client send PORT command to server at TCP 21 port. 							  							#
+# It sends the PORT command, specifying what client-side port the server should connect to. 		  		#
+# The server connects from port 20 to the client port designated for the data channel (in PORT command).  	#
+#													  														#
+# 2. Passive FTP:											 												#
+#													  														#
+# Client send PASV command to server at TCP 21 port.							  							#
+# The server replies, indicating which (random) port it has opened for data transfer. 			  			#
+# The client connects from another random port to the random port specified in the server's response. 	  	#
+#############################################################################################################
+
+
+========== VSFTP ==============
+
+1. VSFTP Config file:
+
+- In Red Hat /etc/vsftpd/vsftpd.conf
+- In Debian /etc/vsftpd.conf
+
+2. Configuration:
+
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+use_localtime=YES
+local_umask=022
+dirmessage_enable=NO
+connect_from_port_20=YES
+############################################
+# LOGGING
+############################################
+xferlog_enable=YES
+xferlog_std_format=YES
+
+listen=YES
+pam_service_name=vsftpd
+userlist_enable=YES
+############################################
+# Here you have to list usernames which are allowed access.
+############################################
+userlist_file=/etc/vsftpd/vsftpd.list
+userlist_deny=NO
+tcp_wrappers=YES
+max_clients=5
+max_per_ip=3
+############################################
+# You have to create the banner file 1st! and put this inside: ProFTPD 1.3.4d Server
+############################################
+banner_file=/etc/vsftpd/vsftp_banner_file
+local_root=/var/ftp
+
+############################################
+# SSL
+############################################
+ssl_enable=YES
+allow_anon_ssl=NO
+force_local_logins_ssl=YES
+force_local_data_ssl=YES
+require_cert=YES
+ssl_sslv3=YES
+ssl_tlsv1=YES
+rsa_cert_file=/etc/vsftpd/vsftpd.pem
+rsa_private_key_file=/etc/vsftpd/vsftpd.pem
+require_ssl_reuse=NO
+	
+
+3. SSL key generation via openssl lib:
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/vsftpd/vsftpd.pem -out /etc/vsftpd/vsftpd.pem
+
+

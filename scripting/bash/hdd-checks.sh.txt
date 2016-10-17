@@ -1,0 +1,26 @@
+#!/bin/bash
+
+#############################################
+# This script checks if free space is above	#
+# specific percentage and if yes, then it	#
+# sends email using ssmtp					#
+# So you need ssmtp configured beforehand.	#
+#############################################	
+
+
+freespace=$(df |grep /dev/md0 | awk '{print $5 }' |cut -d"%" -f1)
+if [ $freespace -gt 88 ] 
+then
+	echo    'To:RECEIVER@mydomain.zz'               	> summary.txt
+        echo    'From:from@gmail.com'               	>> summary.txt
+        echo    'Subject: WARNING! Your Server root fs is above XX% threshold!'  >> summary.txt
+	echo ""
+
+	echo "Today is `date`"
+	df -hT >> summary.txt
+	
+        /usr/sbin/ssmtp RECEIVER@mydomain.zz < summary.txt
+
+
+fi
+

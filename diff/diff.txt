@@ -1,0 +1,4 @@
+# Find the same lines in 2 different files
+
+diff --unchanged-group-format='@@ %dn,%df %<' --old-group-format='' --new-group-format='' --changed-group-format='' FILE1 FILE2
+

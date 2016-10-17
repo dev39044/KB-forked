@@ -1,0 +1,9 @@
+
+# In order to extract only users from slapcat dump file, use:
+
+grep Uid slapcat-vg.txt | cut -d" " -f2 |sort -u > user-list.txt
+
+# Result below:
+
+admin
+user

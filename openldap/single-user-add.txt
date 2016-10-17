@@ -1,0 +1,85 @@
+#! /bin/bash
+if [[ -z $1 ]]
+then
+ echo "Usage: $0 <username>"
+ exit 1
+fi
+
+ROOTDIR=/opt/mydomain/samba
+SMBTOOL=$ROOTDIR/bin/samba-tool
+LDBSEARCH="$ROOTDIR/bin/ldbsearch -H $ROOTDIR/private/sam.ldb"
+LDBMODIFY="$ROOTDIR/bin/ldbmodify -H $ROOTDIR/private/sam.ldb"
+
+# for userLDif I need
+# usercn
+# UID
+# GID
+# username
+# first create user
+
+USERNAME=$1
+$SMBTOOL user add $USERNAME --random-password --userou="ou=USERS,ou=mydomain"
+
+if [ $? == 0 ]
+        then
+
+$SMBTOOL user setpassword $USERNAME --newpassword=<yourpassword> --must-change-at-next-login
+#get uid number
+MYUID=`$LDBSEARCH | grep msSFU30MaxUidNumber | cut -d " " -f 2`
+USERCN="cn=$USERNAME,ou=USERS,ou=mydomain,DC=mydomain,DC=zz"
+
+# get gid from the default group which is the GID from "Domain Users"
+MYGID=`$LDBSEARCH "cn=Domain Users" | grep gidNumber | cut -d " " -f 2`
+
+# create ldif
+# this will all needed entries for a posix comipatible account and windows NIS domain stuff"
+
+# TMP=`cat $USERLDIF`
+
+echo "
+dn: $USERCN
+changetype: modify
+add: objectClass
+objectClass: posixAccount
+-
+add: objectClass
+objectClass: shadowAccount
+-
+add: unixHomeDirectory
+unixHomeDirectory: /home/$USERNAME
+-
+add: loginShell
+loginShell: /bin/bash
+-
+add: uidNumber
+uidNumber: $MYUID
+-
+add: gidNumber
+gidNumber: $MYGID
+-
+add: msSFU30Name
+msSFU30Name: $USERNAME
+-
+add: uid
+uid: $USERNAME
+-
+add: msSFU30NisDomain
+msSFU30NisDomain: mydomain
+-
+" > /tmp/tmp.ldif
+$LDBMODIFY /tmp/tmp.ldif
+
+# the uid number needs to be incremented by 1 and commited to the LDAP.
+MYUID=$(expr $MYUID + 1)
+# increment uid number
+echo "
+dn: CN=mydomain,CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System,DC=mydomain,DC=zz
+changetype: modify
+replace:msSFU30MaxUidNumber
+msSFU30MaxUidNumber: $MYUID
+" > /tmp/tmp.ldif
+$LDBMODIFY /tmp/tmp.ldif
+
+fi
+
+#EOF

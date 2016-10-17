@@ -1,0 +1,11 @@
+# Here I will keep some useful Samba ldap commands:
+
+# below command will list all users in dn format
+
+ldbsearch -H /opt/mydomain/samba/private/sam.ldb '(objectclass=user)'
+
+# below command will output all information for user hero1
+
+ldbsearch -H /opt/mydomain/samba/private/sam.ldb '(samaccountname=hero1)' # You can add <cn>, <memberof> or ANY property that this object has to filter the output.
+
+

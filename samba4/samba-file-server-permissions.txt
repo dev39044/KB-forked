@@ -1,0 +1,38 @@
+
+# Here I will document some specifics about how Linux ACLs and Windows ACLs work together against SAMBA FILE SERVER.
+
+1. Windows deny access entries DO NOT WORK as expected againts SAMBA FILE SERVER. This is because Samba see them as normal acl entry not allowing access
+to specific group, but it DOES NOT TAKE precedence over allow permissions which is the case against Windows file server.
+
+example: From Windows client I have set up a group disable-mobo and put deny access to members in it. If denied member is also a member of any of Marketing_XX groups - then access will be allowed. In Windows file server - access will be denied.
+
+# file: shares//Marketing/user/2015/MOBO/Super-SECRET-File.txt
+# owner: administrator
+# group: domain\040users
+user::rwx
+group::r-x
+group:domain\040admins:rwx
+group:marketing_r:r-x
+group:marketing_rw:rwx
+group:disable-mobo:---
+mask::rwx
+other::---
+================================================================
+
+2. According above statement, it makes sence creating groups and OUs according current file structure. E.g.:
+
+Domain-mydomainOU-GroupsOU-MarketingOU-Group-shares-subf1-subf1_R(W)
+
+3. It is really important to manage access via groups, from Users and Computers MMC from Windows 7/2008/*. This is because settings up the whole directory structure will be a difficult task and can be ruined with one explicit inheritance!
+
+4. IMPORTANT! If you have at least one named group entry, then group owner entry MUST be managed via SETFACL command, instead via CHMOD! Do not forget that for READ
+access you need execute access as well!
+
+5. When you change user membership of a Windows client - restart of the session to file server is required. For Windows the client needs to log off and log on again. For Linux you need to remount the SMB connection (GUI) or reconnect using smbclient.
+
+6. Backup test of Samba file server is done. Actually I decided to use rsync, instead of dar. Personally I will prefer file to file backup/restore utility than file to backup media file. The last for me is a bit dangerous. Also we have a working backup solution using rsync. No need to spent more time digging into dar backup.
+
+For RSYNC we need to add to more switches, i.e. -A and -X  for acls and xattrs corresponding. 
+
+Something like below:
+rsync --progress --stats -avhzAX /backup/shares root@samba-fs:/backup

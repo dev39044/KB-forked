@@ -1,0 +1,14 @@
+#### SCP & Port Forwarding ###
+
+ssh -L <local-bind>:<localport>:<remotehost1>:<remoteport1> -p <remoteport2> -l <remoteuser2> remotehost2 
+
+# The above could be used to transfer files from localhost via remotehost2 to remotehost1
+
+scp -P <localport> </path/to/file> <remoteuser1>@localhost:</remote1/path/to/file>
+
+----
+----
+----
+When you want to transfer file1 from pc A to pc B:
+
+scp -P <destPort> file1 dest-USER@dest-IP:dest-Folder

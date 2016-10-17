@@ -1,0 +1,3 @@
+
+mv testcp/Downloads/* DEST/ -- This will move All files and sub-folders to DEST dir.
+mv testcp/Downloads/ DEST/ -- This will move the whole Download folder with any file and sub-folder in it to DEST dir.

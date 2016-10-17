@@ -1,0 +1,12 @@
+Start the cygwin-setup and add the “cron” package from the “Admin” category.
+Setup cron:
+Run command cron-config and answer below questions.
+-- Do you want to remove or reinstall it (yes/no) yes
+-- Do you want to install the cron daemon as a service? (yes/no) yes
+-- Enter the value of CYGWIN for the daemon: [ ] ntsec
+-- Do you want the cron daemon to run as yourself? (yes/no) no
+-- Do you want to start the cron daemon as a service now? (yes/no) yes
+Don't forget to setup correct r+x permissions on your shell files!
+sc start cron
+Create your crontab entries using crontab -e command
+Troubleshooting is done via cronevents or log files located in user home dir ~ ... or /var/log/cron.log

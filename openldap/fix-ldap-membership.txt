@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# You MUST create all groups BEFORE execute this one. Also MOVE all default groups to your $TARGETGDN
+# Export all openLDAP info with slapcat.
+# DEFINE below variables according to your environment.
+
+slapSRC=slapcat-vg.txt
+UDN=OU=USERS,OU=mydomain,DC=mydomain,DC=zz
+SOURCEGDN=ou=Groups,dc=mydomain,dc=com
+TARGETGDN=OU=LINUX,OU=GROUPS,OU=mydomain,DC=mydomain,DC=zz
+
+# Explanation of below command:
+# Part: grep -E '(Groups|memberUid)' "$slapSRC"    // just filtering the SLAPINFO.txt file to only Groups & memberUid rows.
+# Part: sed 's/memberUid/member/g'                // just replacing "memberUid" with "member" according to SAMBA schema.
+# Part: tail -n +3                               // this part just removes some wrong lines in the beginning of this output.
+# Part: sed "s/$SOURCEGDN/$TARGETGDN/g"         // just replacing the source DN to whatever target DN you want.
+# Part: sed 's/member://g'                    // just remove the row "member:" Why? because it's easier for me to add "cn=" in front of all users
+# Part: sed 's/^[ ]/cn=/g'                  // just add "cn=" on every line starting with empty space.
+# Part: sed "/^cn=*/ s/$/,$UDN/g"         // will find all rows which start with "cn=" and will add $UDN variable at last.
+# Part: sed '/^dn/{G;}'                 // this will add an empty row below every line that starts with dn.
+# Part: sed 's/^\s*$/add: member/g'   // this will replace the newly created empty row with "add: member" which is needed for ldapmodify command.
+# Part: sed 's/^cn=/member: cn=/g'  // this add "member:" in front of every line that beggins with cn=
+# Part: sed "s/^dn/\n&/g"          // this is used to add an empty row before every "dn" match. This is mandatory for ldapmodify
+# Part: ldapmodify -vc            // Finally pipe to ldapmodify (in verbose mode) in order to modify the records and continue on errors.
+
+grep -E '(Groups|memberUid)' "$slapSRC" | sed 's/memberUid/member/g' | tail -n +3 | sed "s/$SOURCEGDN/$TARGETGDN/g" | sed 's/member://g' |sed 's/^[ ]/cn=/g' | sed "/^cn=*/ s/$/,$UDN/g" |sed '/^dn/{G;}' | sed 's/^\s*$/add: member/g' | sed 's/^cn=/member: cn=/g' | sed "s/^dn/\n&/g" | /usr/bin/ldapmodify -vc -w <CURRENT USER PWD>
+

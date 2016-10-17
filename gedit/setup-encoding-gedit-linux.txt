@@ -1,0 +1,3 @@
+# Paste this in the terminal of the current user to have cyrillic enabled in gedit.
+
+gsettings set org.gnome.gedit.preferences.encodings auto-detected "['UTF-8', 'WINDOWS-1251','WINDOWS-1252', 'CURRENT', 'ISO-8859-15', 'UTF-16']"

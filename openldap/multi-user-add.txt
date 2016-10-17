@@ -1,0 +1,8 @@
+#!/bin/bash
+
+GLIST=$(cat user-list.txt)
+
+for i in $GLIST ; do
+        ./single-user-add.sh "$i"       
+done
+

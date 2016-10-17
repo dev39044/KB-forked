@@ -1,0 +1,51 @@
+############
+#NTP Server#
+############
+
+# VERY GOOD EXPLANATION OF NTP: http://www.h3c.com/portal/Technical_Support___Documents/Technical_Documents/Switches/H3C_S5120_Series_Switches/Configuration/Operation_Manual/H3C_S5120-SI_CG-Release_1101-6W105/201108/723597_1285_0.htm
+
+# Requirements:
+1. driftfile /var/lib/ntp/ntp.drift - used to calculate the offset.
+2. server <hostname or ip address> iburst - check ntp.conf man page.
+3. restrict - check http://www.eecis.udel.edu/~mills/ntp/html/accopt.html#restrict
+4. TROUBLESHOOTING - check http://www.eecis.udel.edu/~mills/ntp/html/debug.html
+
+
+- check /etc/services - there should be entry for ntp 123 service
+- check firewall UDP --sport and --dport 123 !
+- ping your ntp servers /skip dns problem/
+- If the client time at startup happens to be more than 1000 s distant from NTP time, the daemon exits with a message to the system log directing the operator to manually set the time within 1000 s and restart. If the time is less than 1000 s but more than 128 s distant, a step correction occurs and the daemon restarts automatically!
+- 
+
+
+
+ntpq or ntpdc tools - http://www.eecis.udel.edu/~mills/ntp/html/ntpdc.html
+========================================================================================
+
+# /etc/localtime and /etc/timezone ###
+
+/etc/localtime is used to tell Linux the correct TIME 
+
+It's much better to COPY instead to create a shortcut from /usr/share/zoneinfo/Europe/Sofia to /etc/localtime.
+Why? Well, because if in future you have to change the timezone again, you'll create a new shortcut to /etc/localtime and
+will actually replace your previous timezone file, in this case SOFIA! Also /usr maybe mounted later than /etc.
+
+/etc/timezone is used to tell the TIMEZONE i.e EUROPE/SOFIA where the locatime in SOFIA is taken from /etc/localtime.
+======================================================================================================================
+
+
+#### TROUBLESHOOTING INCREASING TIME OFFSET IN LINUX ###
+
+# Check available clock sources.
+
+cat /sys/devices/system/clocksource/clocksource0/available_clocksource
+
+# Check the current clock source.
+
+cat /sys/devices/system/clocksource/clocksource0/current_clocksource
+
+### mojesh da vidish chasovnika na BIOS-a.
+cat /proc/driver/rtc 
+
+### moje da vidish chasovnika na BIOS-a spored localnata timezone na OS-to.
+hwclock -r 

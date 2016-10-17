@@ -1,0 +1,38 @@
+### TAR ###
+
+-c -- create an archive file
+-x -- extract an archive file
+-v -- verbose
+-f -- file name, i.e you have to specify the file name you want to work on.
+-P -- preserve leading /  . This is relative ONLY when you archive AND extract files with leading slash, i.e /dir1 /root etc.
+# NOTE that you MUST specify -P when you first create the archive and when extract as well. If you miss to specify -P when you extract the 
+# archive, then archive will be extracted in the currect working directory, unless you specify -C (change to dir option).
+-j -- pass archiving through compression of the tool bzip
+-z -- the same as above but through gzip
+
+
+# this will extract the files from mentioned archive.
+
+tar -xf archive.tar 
+
+# this will create sample.tar archive from dir1 directory.
+
+tar -cf sample.tar dir1/ 
+
+# this will list the content of sample.tar archive.
+
+tar -tf sample.tar 
+
+# this will extract the archive to folder /dir1
+
+tar -xf sample.tar -C /dir1 
+
+# this will:
+	- create new archive (c)
+	- verify it (W) -- UNCOMPATIBLE WITH gzip (z)
+	- be verbose (v) or more verbose (vv)
+	- with filename (f) 
+	- keep selinux context
+	- backup files before removal (put ~ after filename)
+
+tar --selinux --backup --xattrs -Wvcf <YOUR ARCHIVE NAME + .EXT> <ORIGINAL FILE/FOLDER>

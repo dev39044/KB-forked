@@ -1,0 +1,51 @@
+#####################################
+# Global parameters for ALL subnets #
+#####################################
+
+# Below, log-facility is the code word for start logging and local6 is one of the
+# local0-local7 rsyslog facilities for local use. You should add local6.* /var/log/dhcpd.log in /etc/rsyslog.conf file.
+# Do not forget to create dhcp.log file beforehand.
+log-facility local6;
+
+# Use below clause to show that dhcpd has properly configured settings.
+authoritative;
+
+# This allows dynamic dns updates. At the momemnt it is not working with Samba internal DNS.
+ddns-updates on;
+
+allow client-updates;
+default-lease-time 604800;
+deny bootp;
+
+##########################
+# Subnet parameters here #
+##########################
+
+subnet 192.168.5.0 netmask 255.255.255.0 {
+	option routers 192.168.5.1;
+	option domain-name-servers 192.168.5.1;
+	option subnet-mask 255.255.255.0;
+	range 192.168.5.115 192.168.5.125;
+
+	host cent {
+	fixed-address 192.168.5.116;
+	hardware ethernet 08:00:27:FF:A4:B3;
+	}
+
+	host USER1 {
+	fixed-address 192.168.5.11;
+	hardware ethernet 00:24:D6:A7:A8:3A;
+	}
+
+	host USER2 {
+	fixed-address 192.168.5.10;
+	hardware ethernet 00:22:FA:D2:12:82;
+	}
+
+	host wifi-printer {
+	fixed-address 192.168.5.91;
+	hardware ethernet 00:1f:29:fc:93:cf;
+	}
+	
+	
+}

@@ -1,0 +1,32 @@
+
+1. The following is only required on @@@Domain Member Servers@@@ and not on Domain Controllers!
+
+Add the following to your [global] section of your smb.conf:
+     vfs objects = acl_xattr
+     map acl inherit = Yes
+     store dos attributes = Yes
+
+2. SeDiskOperatorPrivilege:
+
+To configure share permissions, you need an account with „SeDiskOperatorPrivilege“. To grant this privilege, e.g. to the „Domain Admin“ group, run the following command on your AD member server(s):
+# net rpc rights grant 'SAMDOM\Domain Admins' SeDiskOperatorPrivilege -Uadministrator
+
+Existing privileges can be reviewed by
+# net rpc rights list accounts -Uadministrator
+
+3. Adding a new share:
+
+Create a folder that you want to share
+# mkdir -p /srv/samba/Demo/
+Add a new share to your smb.conf (using no other configuration parameters when first setting up a share is highly recommended!):
+[Demo]
+     path = /srv/samba/Demo/
+     read only = no
+Reload Samba:
+# smbcontrol all reload-config
+
+4. To reset already applied ACLs:
+
+# setfacl -b /path/to/share
+# setfacl -b /path/to/share/*
+# setfacl -R -m default:group:domain\ admins:rwx /path/to/share

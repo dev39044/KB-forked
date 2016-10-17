@@ -1,0 +1,312 @@
+== Steps =====================================================
+
+0. POSIX standard file permissions
+1. ACL – install, check, enable
+2. ACL commands – getfacl & setfacl
+3. ACL entries
+4. How ACL mask really works?
+5. ACL default permissions
+6. ACL access check algorithm / very important to understand! /
+7. Sources
+==============================================================
+
+0. POSIX standard file permissions:
+
+OK, probably you’ve already know about Linux standard file permissions. I won’t explain them in this post, instead in another one.
+
+You can change permissions ONLY if you are root or file’s/folder’s owner! This means that you could have rwx permissions on a file, so you can read, write/delete, execute it, BUT you can’t change any permission already set if you are not root or owner.
+
+1. ACL – install, enable, check:
+1.1. Check that you have ACL pkgs installed on your system:
+
+On RedHat/CentOS:
+
+rpm -qa |grep acl
+
+On Debian/Ubuntu:
+
+dpkg -l acl or dpkg -S acl
+
+If you don’t have them installed, do it with:
+yum install acl for RedHat & apt-get install acl for Debian…
+
+1.2. Check that your file system is mounted with ACL support:
+
+cat /proc/mounts |grep acl
+or
+tune2fs -l /dev/sda1 | grep acl // there should be output like this:
+
+—-
+[root@red tmp]# tune2fs -l /dev/mapper/vg_red-lv_root |grep acl
+Default mount options: user_xattr acl
+—-
+
+If you don’t have ACL support on your mounted file system (FS) and try to set a rule, you’ll get error like this: ” Operation is not supported”
+So, you need to remount your FS using:
+
+mount -o remount,acl myfilesystem // check “man mount” if you need more details, help.
+
+2. ACL commands – getfacl & setfacl:
+
+Of course, you can read manual page of any of these 2 commands for more details. In short:
+
+getfacl – is used to show you current status of standard file permissions & ACLs.
+setfacl – is used to set & remove file perms & ACLs.
+
+3. ACL entries:
+
+I’ll explain them with my words. OK, what we could have in one ACL?:
+
+3.1. File/dir user entry (this is the user owner from standard file permissions)
+
+(next four entries are grouped according ACL mask, I’ll explain later how)
+3.2. File/dir group entry (this is the same as above just for the group)
+3.3. Named ACL user entry (this is user entry which is not owner of the file or folder)
+3.4. Named ACL group entry (this is ACL group entry different from the owner’s group)
+3.5. Mask ACL entry (I’ll explain below how mask works in above 3 entries.)
+
+3.6. File/dir others entry (this is the others entry from standard file permissions)
+
+EXAMPLE: (take a look over the example below to get an idea of ACL entries above)
+
+[root@red tmp]# getfacl share/
+# file: share/
+# owner: root    (this is entry 3.1)
+# group: root    (this is entry 3.2)
+user::rwx           (this is entry 3.1)
+user:ivan:rwx    (this is entry 3.3)
+group::r–           (this is entry 3.2)
+group:Managers:r-x        (this is entry 3.4)
+mask::rwx                         (this is entry 3.5)
+other::r-x                          (this is entry 3.6)
+
+ACL mask affects all entries, EXCEPT entry 3.1 (user owner) & 3.6 (others entry).
+Let’s explain this example in depth:
+
+Current permissions of all entries:
+(I’ll name mask affected entries = ME for convinience)
+
+root user = rwx
+ivan user = rwx (ACL mask affected) (ME)
+root group = r (ACL mask affected) (ME)
+Managers group = rx (ACL mask affected) (ME)
+mask = rwx
+others = rx
+
+4. How ACL mask really works?
+
+When you create an ACL entry, mask is automatically calculated if you skip to define it.
+When ACL mask is = rwx , then mask actually do not “masking” any permission bit. Masking is actually removing permissions.
+
+When ACL mask is = rw , then all ME will have missing execute bit permission.
+When ACL mask is = r , then all ME will have missing w & x bits permission.
+I’ll change mask of above example to rw, and you’ll see the result:
+
+==================================
+[root@red tmp]# setfacl -m m::rw share/ (here I’ve changed ACL mask to rw)
+[root@red tmp]# getfacl share/
+# file: share/
+# owner: root
+# group: root
+user::rwx
+user:ivan:rwx #effective:rw-
+group::r–
+group:Managers:r-x #effective:r–
+mask::rw-
+other::r-x
+==================================
+
+Now we have ACL mask = rw. Note that in above output user ivan had effective permissions of rwx, but when the mask was rwx. Now mask is rw, which means execute bit (x) is masked off and you can see effective permissions of Ivan = rw, and group Managers = r
+
+Let’s make ACL mask = r , and see the result:
+
+==================================
+[root@red tmp]# setfacl -m m::r share/
+[root@red tmp]# getfacl share/
+# file: share/
+# owner: root
+# group: root
+user::rwx
+user:ivan:rwx #effective:r–
+group::r–
+group:Managers:r-x #effective:r–
+mask::r–
+other::r-x
+==================================
+
+Now we have ACL mask = r , which means in above output masked off bits are write(w) & execute(x). Also note the effective permissions of user ivan & group Managers, they now have only read permissions. Did you mention permissions of root user owner & others? They haven’t been affected by ACL mask, right? :)
+
+OK, let’s make ACL mask = — , i.e masking off all permissions:
+
+==================================
+[root@red tmp]# setfacl -m m::— share/
+[root@red tmp]# getfacl share/
+# file: share/
+# owner: root
+# group: root
+user::rwx
+user:ivan:rwx #effective:—
+group::r– #effective:—
+group:Managers:r-x #effective:—
+mask::—
+other::r-x
+==================================
+
+Now, we have ACL mask = — , which effectively mask off all ME, i.e. they don’t have any permissions set. I hope you now understand how ACL mask works.
+
+5. ACL default permissions:
+
+Support you have folder SHARE.
+Then you want to create a sub-folder named MARKETING. You already have set some ACL permissions on SHARE, but you also want these to be inherited to MARKETING. How to do this? Simply with default permissions.
+
+Let’s take a look over an example:
+
+==================================
+[root@red tmp]# mkdir SHARE
+[root@red tmp]# ls -ld SHARE/
+drwxr-xr-x. 2 root root 4096 Mar 1 15:05 SHARE/
+[root@red tmp]# getfacl SHARE/
+# file: SHARE/
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+==================================
+
+Let’s add user ivan with rw ACL permissions over SHARE.
+
+==================================
+[root@red tmp]# setfacl -m u:ivan:rw SHARE/
+[root@red tmp]# getfacl SHARE/
+# file: SHARE/
+# owner: root
+# group: root
+user::rwx
+user:ivan:rw-
+group::r-x
+mask::rwx
+other::r-x
+==================================
+
+Now we create a sub-folder of SHARE, named MARKETING.
+
+==================================
+
+[root@red tmp]# ls -ld SHARE/MARKETING/
+drwxr-xr-x. 2 root root 4096 Mar 1 15:09 SHARE/MARKETING/
+[root@red tmp]# getfacl SHARE/MARKETING/
+# file: SHARE/MARKETING/
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+==================================
+
+Where is user ivan on newly created MARKETING folder?!
+Well, user ivan is not inherited as this haven’t been set.
+Let’s make user ivan as default ACL entry on SHARE.
+
+==================================
+
+[root@red tmp]# setfacl -d -m u:ivan:rw SHARE/
+[root@red tmp]# getfacl SHARE/
+# file: SHARE/
+# owner: root
+# group: root
+user::rwx
+user:ivan:rw-
+group::r-x
+mask::rwx
+other::r-x
+default:user::rwx
+default:user:ivan:rw-
+default:group::r-x
+default:mask::rwx
+default:other::r-x
+==================================
+
+Now you can see that there is more that one default entry. This is because on Linux all other entries are copied by default too. So let’s make MARKETING2 folder inside SHARE.
+
+==================================
+
+[root@red tmp]# mkdir SHARE/MARKETING2
+[root@red tmp]# getfacl SHARE/MARKETING2
+# file: SHARE/MARKETING2
+# owner: root
+# group: root
+user::rwx
+user:ivan:rw-
+group::r-x
+mask::rwx
+other::r-x
+default:user::rwx
+default:user:ivan:rw-
+default:group::r-x
+default:mask::rwx
+default:other::r-x
+
+==================================
+
+OK, now you see that all default entries from SHARE are also copied to MARKETING2, but as you can see MARKETING2 also have default entries. This is because all newly created DIRECTORIES get copied (inherited) all default entries from the parent dir. What about newly created sub files? Let’s see:
+
+==================================
+
+[root@red tmp]# getfacl SHARE/newfile1
+# file: SHARE/newfile1
+# owner: root
+# group: root
+user::rw-
+user:ivan:rw-
+group::r-x #effective:r–
+mask::rw-
+other::r–
+
+==================================
+
+Above, you can see that newly created file didn’t get any default entries, … because it cannot have sub-files or sub-folders :), that’s why.
+You also could note that mask is = rw, instead of rwx as of MARKETING2 folder. This is because touch command passes mode 0666 to kernel for creating a new file. With two words – you probably know that execute (x) bit is normally removed when new files are created.
+
+6. ACL access check algorithm / very important to understand! /
+
+Well, this is really important to understand in order to know what effective permission an entry would have.
+
+Support a user “ivan” wants to create a file in folder SHARE. Current permissions on folder SHARE are:
+==================================
+[root@red tmp]# getfacl SHARE/
+# file: SHARE/
+# owner: root
+# group: root
+user::rwx (1st check)
+user:ivan:rw- (2nd check)
+group::r-x (3rd check)
+mask::rwx
+other::r-x (4th check)
+
+[root@red tmp]# id ivan
+uid=501(ivan) gid=501(ivan) groups=501(ivan),502(Managers)
+==================================
+
+Let’s walk through permissions from top to bottom.
+1. User ivan is not owner of SHARE folder, so these perms do not match. Ignored. Continue further:
+
+2. User ivan is user ivan :) we have a match here, so there perms are checked againts our process of creating a new file in SHARE folder.
+
+[ivan@red tmp]$ touch SHARE/newfile-ivan
+touch: cannot touch `SHARE/newfile-ivan’: Permission denied
+
+Permission is denied because user ivan do not have execute (x) permission bit on SHARE folder. Thus cannot create his new file. Ignored. Continue further:
+
+3. User ivan is not a member of group root, so these perms do not match. Ignored. Continue further:
+4. User ivan match the last check as “other” entry, but permissions are insufficient.
+
+I hope you get the idea how this works.
+So, if there is an entry with sufficient permissions – it’s used by the corresponding process.
+
+7. Sources:
+
+http://www.vanemery.com/Linux/ACL/POSIX_ACL_on_Linux.html – this is very deep explanation how ACL works.
+man acl
+and … google :)
+

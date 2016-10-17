@@ -1,0 +1,137 @@
+# MENU
+# 1. OpenVPN HELP - what, where, which, who etc.
+# 2. How to generate a NEW client certificate WITHOUT rebuild all keys?
+# 3. How to have a static DHCP address assigned to a client and exclude it from the pool? 
+# 4. What files do you need from client side in order to have working VPN?
+# 5. How clients can see each other? (to ping, to access ports etc. )
+# 6. Company VPN topology
+# 7. How to revoke a client certificate?
+
+
+###################
+# 1. OpenVPN HELP #
+###################
+
+# Read here: https://openvpn.net/index.php/open-source/documentation/howto.html
+# OR type:
+openvpn --help
+
+#########################################################################
+# 2. How to generate a NEW client certificate WITHOUT rebuild all keys? #
+#########################################################################
+
+# 1. You need to source vars file which is located in /etc/openvpn/easy-rsa/vars .
+# Read a bit more about source built-in command here: 
+# http://superuser.com/questions/176783/what-is-the-difference-between-executing-a-bash-script-and-sourcing-a-bash-scrip
+
+source /etc/openvpn/easy-rsa/vars 
+
+# OR below command is the same.  
+
+. /etc/openvpn/easy-rsa/vars 
+./build-key-pass <NEW-COMMON-NAME> 
+
+###########################################################################################
+# 3. How to have a static DHCP address assigned to a client and exclude it from the pool? #
+###########################################################################################
+
+# 1. Create a ccd (client-common-dir) folder in /etc/openvpn/
+# 2. Create a file named exactly as target CN, e.g ccd/ayhan and put there this command:
+
+ifconfig-push 10.10.10.XXX 255.255.255.0
+
+# NOTE: You need in your server.conf file to have these options defined:
+
+topology subnet
+server 10.10.10.0 255.255.255.0
+
+# 3. Create a text file in openvpn folder named ipp.txt
+# Put there IPs that you DO NOT want to be dynamically assigned, i.e exclude them from the pool.
+# Syntax is this:
+# "CommonName,IP"
+
+excluded-from-dhcp9,10.117.218.9
+excluded-from-dhcp221,10.117.218.221
+
+# First part is the Common Name, here I've written something
+# unusual "excluded-from-dhcp9" in order to be sure that in future I won't create such a CN certificate.
+
+# 4. Put these options in server.conf file:
+
+client-config-dir /etc/openvpn/ccd
+ifconfig-pool-persist ipp.txt 
+
+# 5. Restart OpenVPN server, DO NOT reload it!
+     
+########################
+# 4. CLIENT side files #
+########################
+
+# You need ca.crt, CN.crt, CN.csr, CN.key, tls-auth.key, client.conf/ovpn
+
+######################################
+# 5. How clients can see each other? #
+######################################
+
+# 1. One way is to enable ip forwarding and then to manage all nat/forwards via iptables 
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# 2. 2nd aproach is to use this:
+
+# Uncomment this directive to allow different
+# clients to be able to "see" each other.
+# By default, clients will only see the server.
+# To force clients to only see the server, you
+# will also need to appropriately firewall the
+# server's TUN/TAP interface.
+client-to-client
+
+# Note that the 1st method is more restrictive and you have more control on it.
+
+#############################
+# 6. Company VPN topology   #
+#############################
+
+# Well, OpenVPN is installed on filer server. There I have LAN, VPN and Access networks.
+# LAN = 192.168.1.0/24 - this is the main company network segment
+# VPN = 10.117.218.0/24 - this is used in OpenVPN configuration as main connecting network segment. 
+# VPN clients get IP addr from this network. In order to skip installing OpenVPN on target servers
+# I've set up an additional Access network only on them and also added persistent route to it.
+# I wouldn't be using Access network if our main company network was something other than 192.168.1.0 .
+# Access = 172.27.227.0/24 - this one is set up on servers that I want to have access to. Then I've
+# added a persistent route to them via VPN network:
+route -p add 10.117.218.0 mask 255.255.255.0 172.27.227.1  (WINDOWS COMMAND)
+
+##########################################
+# 7. How to revoke a client certificate  #
+##########################################
+
+# cd in /etc/openvpn/easy-rsa/
+./revoke-full <CN>
+
+# this should generate a file named crl.pem in keys subfolder
+cp keys/crl.pem /etc/openvpn/
+
+# You need to copy this file as keys folder is only accessed by root!
+# NOTE: You need to copy it every time you revoke a new certificate!
+# You can check current certicate status here:
+cat /etc/openvpn/easy-rsa/keys/index.txt
+
+# Revoked certs start with R letter
+# Never delete certificate files, despite they are revoked! You never know!
+
+
+
+
+
+
+
+
+
+
+     
+
+
+
+

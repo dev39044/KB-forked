@@ -1,0 +1,10 @@
+/etc/profile:
+- system wide config file. 
+- executed for ALL shells, instead for BASH only.
+- after reading this file, system continue with ~/.bash_profile, ~/.bash_login, and ~/.profile, in that order, and reads and executes commands from the FIRST one that exists and is readable.
+
+~/.bash_profile:
+- note that in most of the cases this file invokes ~/.bashrc which invokes /etc/bashrc or /etc/bash.bashrc
+
+~/.bashrc:
+- When  an  interactive  shell that is NOT a login shell is started, bash reads and executes commands from ~/.bashrc, if that file exists.

@@ -1,0 +1,47 @@
+Samba 4 ADC Test Environment
+These pages features the progress of the different tests and setups of samba 4 as active directory controller. They will represent our future production office environment.
+
+Steps:
+Using TEST server that will host our virtual machines. Installation and configuration of XEN server is a separate topic. Find it using Search field.
+Installing and setting up vg-DC01 (first DC, all FSMO Roles owner)
+Installing and setting up vg-DC02 (second DC)
+Installing and setting up vg-SRV1 (Windows 2008 R2 Eval server) - used for managing Users & Groups via "Active Directory Users and Groups" snap-in.
+Installing and setting up vg-FS file server.
+OS Installation
+First define your /etc/xen-tools/xen-tools.conf file in order to use shorter command syntax. The settings we used in HERCULES for this file are:
+
+lvm = vgxen
+install-method = debootstrap
+size = 10Gb # Disk image size.
+memory = 512Mb # Memory size
+swap = 1Gb # Swap size
+fs = ext4 
+dist = `xt-guess-suite-and-mirror --suite` # Default distribution to install.
+image = sparse # Specify sparse vs. full disk images.
+gateway = 192.168.1.1
+netmask = 255.255.255.0
+broadcast = 192.168.1.255
+nameserver = 192.168.1.1
+bridge = br0
+passwd = 1
+kernel = /boot/vmlinuz-`uname -r`
+initrd = /boot/initrd.img-`uname -r`
+arch = amd64
+mirror = `xt-guess-suite-and-mirror --mirror`
+mirror_wheezy = http://debian.inode.at/debian
+ext3_options = noatime,nodiratime,errors=remount-ro
+ext2_options = noatime,nodiratime,errors=remount-ro
+xfs_options = defaults
+reiserfs_options = defaults
+btrfs_options = defaults
+copyhosts = 1
+
+vg-DC01
+xen-create-image --hostname=vg-dc01 --ip=192.168.1.30 --size=20G --fs=ext4 --memory=2Gb
+vg-DC02
+xen-create-image --hostname=vg-dc02 --ip=192.168.1.31 --size=20G --fs=ext4 --memory=2Gb
+vg-FS
+
+xen-create-image --hostname=vg-fs --ip=192.168.1.35 --size=20G --fs=ext4 --memory=2Gb --vcpus=2
+vg-SRV1 - Use this guide to install Windows Server on XEN --> https://wiki.mydomain.com/display/NOC/Windows+Server+2008+on+HVM+XEN
+xen-create-image --hostname=vg-srv1 --ip=192.168.1.36 --size=20G --fs=ext4 --memory=4Gb --vcpus=4

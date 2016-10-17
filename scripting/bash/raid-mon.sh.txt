@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#####################################
+# This script monitor mdadm raids	#
+#####################################
+
+# Enter correct script folder
+cd /root/monitoring
+
+# Raid result txt file
+file=raid-results.txt
+
+# error file name
+F=raid.err
+
+# Remove old raid files
+rm -f $F $file
+
+# Raid device name
+RDEV=/dev/md0
+
+# Num of active devices
+DEVICES=$(mdadm --detail $RDEV |grep Active |cut -d" " -f5)
+
+# Checking if active devices are < 2
+if (( $DEVICES < 2 )) ; then
+	echo "Current RAID status is: " > $F
+	cat /proc/mdstat >> $F
+	echo " "
+	mdadm --detail $RDEV >> $F
+fi
+	
+# Sending email with results
+if [[ -s  "$F" ]] ; then
+	# Adding some email fields in the sum file
+        echo    'To:to@mydomain.zz'             > $file
+        echo    'From:from@gmail.com'              >> $file
+        echo    'Subject: <Your SRV> RAID ISSUE!'  >> $file
+	echo 	' '
+	cat $F >> $file
+	echo 	' ' 
+	/usr/sbin/ssmtp to@mydomain.zz < $file
+fi
+

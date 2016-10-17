@@ -1,0 +1,15 @@
+
+1. Using pdbedit tool to manage the SAM database (Database of Samba Users):
+
+# To delete account from SAM db use this. Note: you can use samba-tool as well.
+
+pdbedit -x -u bob
+
+# To list all user and PC accounts:
+
+pdbedit -L
+
+2. tdbdump - tool for printing the contents of a TDB file
+
+
+3. Samba-tool is used mainly to manage Samba AD env.

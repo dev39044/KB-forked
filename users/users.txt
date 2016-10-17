@@ -1,0 +1,10 @@
+### How to add multiple users to a group? Use below command:
+
+gpasswd -M user1,user2,....userN GroupName
+
+### How to add an <USER> to a multiple groups? Use below command:
+
+usermod -aG group1,group2,group3....groupN <USER> // option -a is to APPEND, if you skip it, then this will REPLACE all current user's groups!
+
+
+

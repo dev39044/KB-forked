@@ -1,0 +1,192 @@
+Prerequisites
+One important thing is to be sure that you have ACL and XATTR support for your file system WHERE will Samba live. By default acl and xattr are included, however you can check using below command:
+root@hercules:~# tune2fs -l /dev/<YOUR SAMBA PARTITION> |grep options
+2. Also add "barrier=1" option to your /etc/fstab. This option ensures that tdb transactions are safe against unexpected power loss.
+
+/dev/xvda2 / ext4 errors=remount-ro,barrier=1 1 1
+Installation
+Install below packages:
+apt-get install acl attr autoconf build-essential docbook-xsl dnsutils gdb git inkscape ldap-utils libacl1-dev libattr1-dev libblkid-dev libgnutls-dev libreadline-dev libpam0g-dev libpam0g-dev libpopt-dev libldap2-dev libbsd-dev krb5-user libcups2-dev python-dev python-dnspython pkg-config xsltproc
+
+2. Get Samba source code:
+
+git clone -b v4-1-stable git://git.samba.org/samba.git samba-v4-1-stable
+3. Compile: 
+
+./configure --enable-debug --enable-selftest --prefix=/opt/mydomain
+make
+make install
+ 
+Above commands will install Samba in /opt/mydomain/samba-4.1.X version folder. Create a symlink named samba pointing to samba-4.1.X folder:
+cd /opt/mydomain ; ln -s samba-4.1.X samba
+ 
+
+Change the PATH variable in /etc/profile with this:
+
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/mydomain/samba/sbin:/opt/mydomain/samba/bin"
+
+4. Domain provisioning: 
+
+4.1. Use these domain settings:
+	
+ Installation Directory: /opt/mydomain/samba
+ Server Hostname: vg-DC01
+ DNS Domain Name: mydomain.zz
+ NT4 Domain Name: mydomain
+ IP Address: 192.168.1.30
+ Server Role: DC
+ 
+ 
+
+Use this command to provision our first domain controller. NOTE: Check out on which network interfaces you want Samba to bind to!
+
+samba-tool domain provision --option="interfaces=lo eth0" --option="bind interfaces only=yes" --use-rfc2307 --interactive
+	
+NEVER USE above command for JOINING servers in the DOMAIN or PROMOTING new (2nd, 3rd, 4th etc.) domain controllers!!! 
+ 
+
+This is the most important info after the provisioning:
+
+Server Role: active directory domain controller
+Hostname: vg-DC01
+NetBIOS Domain: mydomain
+DNS Domain: mydomain.zz
+DOMAIN SID: S-1-5-21-3825067000-488857665-1865033999 
+
+
+4.2. Use this start up script for both domain controllers -->> Samba-4.1.2-startup-script.txt
+
+Copy it to /etc/init.d/samba-ad-dc , make it executable and then start it:
+
+/etc/init.d/samba-ad-dc start 
+
+
+4.3. Add samba-ad-dc to corresponding start levels:
+
+update-rc.d samba-ad-dc start
+ 
+
+4.4. Fix /etc/resolv.conf file:
+
+root@vg-dc01:~# cat /etc/resolv.conf 
+nameserver 192.168.1.30
+# nameserver 192.168.1.31 – UNCOMMENT THIS AFTER SUCCESSFUL SDC JOIN!
+domain mydomain.zz
+ 
+
+4.5. Simple AD test. Using below command should output something like this:
+
+root@vg-dc01:~# smbclient -L localhost -U%
+Domain=[mydomain] OS=[Unix] Server=[Samba 4.1.16]
+ Sharename Type Comment
+ --------- ---- -------
+ netlogon Disk 
+ sysvol Disk 
+ IPC$ IPC IPC Service (Samba 4.1.16)
+Domain=[mydomain] OS=[Unix] Server=[Samba 4.1.16]
+ Server Comment
+ --------- -------
+ Workgroup Master
+ --------- -------
+ 
+
+4.6. Just use below command to copy already generated Kerberos config file, thus set it up.
+
+cp -v /usr/local/samba/share/setup/krb5.conf /etc/krb5.conf
+ 
+
+4.7. Test it using below commands: 
+
+root@vg-dc01:~# kinit administrator
+Password for administrator@mydomain.ZZ: 
+Warning: Your password will expire in 24 days on Thu Mar 26 17:50:14 2015
+  
+root@vg-dc01:~# klist
+Ticket cache: FILE:/tmp/krb5cc_0
+Default principal: administrator@mydomain.ZZ
+Valid starting Expires Service principal
+02/03/2015 15:38 03/03/2015 01:38 krbtgt/mydomain.ZZ@mydomain.ZZ
+ renew until 03/03/2015 15:38
+ 
+
+4.8. Edit /etc/hosts file like this:
+
+root@vg-dc01:~# cat /etc/hosts
+127.0.0.1 localhost.mydomain.zz localhost
+192.168.1.206 hercules.mydomain.zz hercules
+192.168.1.30 vg-dc01.mydomain.zz vg-dc01
+192.168.1.31 vg-dc02.mydomain.zz vg-dc02
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+	IMPORTANT INFO!
+Don't forget that you have to set up all needed DNS records and zones manually using "samba-tool dns" command or DNS management snap-in in vg-SRV1 (Windows Server 2008 R2)
+
+4.9. REBOOT THE SYSTEM NOW!
+
+ 
+
+Installing and setting up NTP service:
+Install it:
+
+aptitude install ntp
+Put this into the /etc/ntp.conf
+
+## ntp server configuration
+## mydomain
+# driftfile need to keep track of time drifts
+driftfile /var/lib/ntp/ntp.drift
+# stratum 1 austria
+server ts1.aco.net iburst
+server ts2.aco.net iburst
+# pools for austria
+pool 0.at.pool.ntp.org iburst
+pool 1.at.pool.ntp.org iburst
+pool 2.at.pool.ntp.org iburst
+pool 3.at.pool.ntp.org iburst
+# leapfile , leap seconds
+leapfile /etc/leap-seconds.3629577600
+# logging
+logfile /var/log/ntp.log
+# sane settings
+tos minclock 4 minsane 4
+# server restrictions
+# kod: kiss of death : kiss some spammer goodbye
+# mssntp: this is to be considered , used for windows syncs with AD auth
+# nomodify: disallow time changing queries from ntpq ant ntpdc
+# nopeer: ignore packets unless authenticated
+# notrap: ntpdc control messages are ignored
+# noquery: maybe maybe not
+restrict default mssntp nomodify nopeer notrap noquery
+# localhost can do all
+restrict 127.0.0.1
+# a samba 4 requirement
+ntpsigndsocket /opt/mydomain/samba4/var/lib/ntp_signd/ 
+Copy this file to /etc/leap-seconds.3629577600  --> file content 
+
+Restart NTP service and check the time and date:
+
+service ntp restart ; date
+Additional info:
+smb.conf file should look like this:
+
+root@vg-dc01:~# cat /opt/mydomain/samba/etc/smb.conf 
+# Global parameters
+[global]
+ workgroup = mydomain
+ realm = mydomain.ZZ
+ netbios name = vg-DC01
+ interfaces = lo, eth0
+ bind interfaces only = Yes
+ server role = active directory domain controller
+ dns forwarder = 192.168.1.1
+ idmap_ldb:use rfc2307 = yes
+[netlogon]
+ path = /opt/mydomain/samba-4.1.16/var/locks/sysvol/mydomain.zz/scripts
+ read only = No
+[sysvol]
+ path = /opt/mydomain/samba-4.1.16/var/locks/sysvol
+ read only = No
+
+# EOF

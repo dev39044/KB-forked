@@ -1,0 +1,14 @@
+#################################################################################
+# Examples of ln:																#
+# By default ln will create hard link, i.e 2 files pointing to the same inode # #
+# NOTE: hard links CANNOT extend 2 different filesystems, symbolic links CAN. 	#
+# NOTE: hard link to directory is NOT possible!									#
+#################################################################################
+
+ln /path/to/original/file /path/to/the/shortcut -- this will create a hard link in mentioned path.
+
+ln (-s) /path/to/original/file  -- this will create a hard (or soft with -s) link from original dest file to the current dir with name "file", i.e the same name.
+
+ln -s /path/to/DIR1 /path/to/the/shortcut -- symbolic link (shortcut) pointing to DIR1
+
+ 

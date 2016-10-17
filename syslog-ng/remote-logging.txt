@@ -1,0 +1,49 @@
+# The fun part is that in every syslog-ng new version you have to change your configuration.
+# So this one below is valid for syslog-ng 3.3
+
+# 1. Of course create a bkp of orignal config files.
+# 2. Update initial options on both server and client like this:
+
+options { chain_hostnames(off); flush_lines(0); use_dns(no); use_fqdn(no);
+          owner("root"); group("adm"); perm(0640); stats_freq(0);
+          bad_hostname("^gconfd$"); create_dirs(yes); keep-hostname(yes);
+};
+
+#### SERVER side ##########################################################################################################################################
+
+# 1. Ok, you need to add just another source record for every client. Just one. Check if this port is used before that.
+# You can add it right after the main local source.
+
+# SOURCE. On receiving server this means to define on which interface/port you expect client logging data.
+
+source s_deb1-<JUST SOME NAME> { syslog(ip(192.168.56.30-THIS IS LISTENING SERVER IP) port(1100) transport("tcp")); };
+
+# DESTINATION. On receiving server this means where incoming data will be stored.
+
+destination d_deb1_auth { file("/SOME DEST FOLDER/$YEAR/$MONTH/$DAY/$HOST/auth.log"); };
+destination d_deb1_messages { file("/SOME DEST FOLDER/$YEAR/$MONTH/$DAY/$HOST/messages.log"); };
+
+# FILTER. Usually I use one of already added by default filters.
+
+# LOG. These are the rows that actually define: { from where, what exactly (if filter is used), where to save it }
+# IMPORTANT. If you don't define: source, destination and log sections for specific client, you will not be able to create a listening port on the server side.
+
+log { source(s_deb1); filter(f_auth); destination(d_deb1_auth); };
+log { source(s_deb1); filter(f_messages); destination(d_deb1_messages); };
+
+#### CLIENT side ##########################################################################################################################################
+
+# SOURCE. No need to define another one as the default local is sufficient. You just need to send a copy of this data somewhere, not to generate another copy.
+
+# DESTINATION. On below record type the IP & port where you are going to send data.
+
+destination d_munin { syslog("192.168.56.30" port(1100) transport("tcp")); };
+
+# FILTER. Usually I use one of already added by default filters.
+# LOG. Here the important part are the filters. This way you filter what data you will send.
+
+log { source(s_src); filter(f_auth); destination(d_munin); };
+log { source(s_src); filter(f_messages); destination(d_munin); };
+
+# EOF.
+######
