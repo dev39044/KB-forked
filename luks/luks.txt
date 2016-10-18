@@ -48,7 +48,7 @@ So in order to have an encrypted device you need to do a few steps:
 
 Note that a reboot might be needed in order new target to appear in blkid or lsblk commands.
 
-7. Create a file system:
+7. Create a file system on your NEW crypt device:
 
     # mkfs.ext3 /dev/mapper/home
 
