@@ -1,0 +1,5 @@
+# Here I'll write how to setup a single standalone Icinga2 mon server.
+
+# Requirements:
+# - Debian 8 x64
+# - apt-get install icinga2 

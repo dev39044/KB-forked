@@ -1,0 +1,73 @@
+
+# Below I'll write options that need to be configured for CENTRAL monitoring.
+# This means that we have one Central server that send notifications, collects passive service checks, but do not perform it actively.
+
+I. PREREQUISITES:
+# At least Debian8-x64
+
+You need to have installed and setup Icinga in a normal standalone configuration. 
+
+1. apt-get install icinga nagios-nrpe-server nagios-nrpe-plugin
+
+2. Fix permissions for command folder and files:
+
+dpkg-statoverride --update --add nagios www-data 2710 /var/lib/icinga/rw
+dpkg-statoverride --update --add nagios nagios 751 /var/lib/icinga
+
+# Restart icinga service after above commands!
+service icinga restart 
+
+3. Edit /etc/icinga/icinga.conf
+
+enable_notifications=1
+accept_passive_service_checks=1
+check_external_commands=1
+
+execute_service_checks=0  # NOTE!!! Disable this options ONLY if you rely solely on distributed servers. 
+# E.g. if you want your central server to check some service on specific host then you need to enable this. 
+# If this is enabled then you need to create a new template, let's say "passive-mon-service"
+# using this command:
+
+cp -v /etc/icinga/objects/generic-service_icinga.cfg /etc/icinga/objects/passive-mon-service.cfg
+
+# Open it and change: 	
+name 	passive-mon-service
+active_checks_enabled  1
+check_service_freshness=1
+
+4. Restart of services:
+
+service icinga restart ; service ido2db restart  ### DO NOT RELOAD ICINGA, THIS WILL KILL DISTRIBUTED STREAM!!! ### USE ONLY RESTART !!!
+# It's really important IDO2DB to be also restarted nearly at the same time as icinga!
+# This is because "reload" somehow breaks distributed streaming ?! ?!? 
+
+5. Edit configuration file /etc/nsca.conf and change below parameters:
+
+password=<CHOOSE HERE A REALLY COMPLICATED PASSWORD>
+decryption_method=9
+
+6. In order tо secure the file:
+
+chmod 640 /etc/nsca.cfg 
+
+7. Restart the service and check from a client if port 5667 on the central server is accessible.
+
+# DEBUGGING #
+
+1. Check out Icinga command file to see what was sent from distributed servers:
+
+cat < /var/lib/icinga/rw/icinga.cmd  
+
+#### USE ABOVE cat COMMAND ONLY FOR SHORT PERIOD OF TIME TO BE SURE THAT nsca IS WORKING!!! NOTE THAT ICINGA WILL NOT RECEIVE THE FULL STREAM OF
+#### COMMANDS IF YOU HAVE OPENED ANOTHER cat < ; tail -f or less -f PIPE OUTPUT!!!
+
+2. Check out Icinga log file to see what passive checks are being executed:
+
+tail -f /var/log/icinga/icinga.log
+
+3. Check out Icinga status file to see if "fresh" info was received by distributed servers.
+
+less /var/lib/icinga/status.dat
+
+# EOF
+
