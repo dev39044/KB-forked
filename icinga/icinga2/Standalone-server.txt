@@ -3,3 +3,15 @@
 # Requirements:
 # - Debian 8 x64
 # - apt-get install icinga2 
+
+
+
+
+
+
+
+Moneta DB 		- Windows server 2008/2012 - 10GB RAM
+Kerio Connect	- Windows OS / Linux OS - 4GB RAM
+SEPM			- Windows OS - 4GB RAM
+Samba			- Debian OS - 2GB
+Backup server	- Debian OS - 2GB
