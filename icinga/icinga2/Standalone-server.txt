@@ -1,17 +1,58 @@
 # Here I'll write how to setup a single standalone Icinga2 mon server.
 
-# Requirements:
-# - Debian 8 x64
-# - apt-get install icinga2 
+################
+# REQUIREMENTS #
+################
+# At least 4 GB RAM and a good CPU
+# This config has been tested on: Debian 8 x64
+# Install below packages 
+apt-get install icinga2 mysql-server mysql-client icinga2-ido-mysql
 
+###############
+# MySQL SETUP #
+###############
 
+mysql -u root -p
+mysql>  CREATE DATABASE icinga;
+mysql>  GRANT SELECT, INSERT, UPDATE, DELETE, DROP, CREATE VIEW, INDEX, EXECUTE ON icinga.* TO 'icinga'@'localhost' IDENTIFIED BY 'icinga';
+mysql> quit
 
+# After creating the database you can import the Icinga 2 IDO schema using the following command:
 
+mysql -u root -p icinga < /usr/share/icinga2-ido-mysql/schema/mysql.sql
 
+# The package provides a new configuration file that is installed in /etc/icinga2/features-available/ido-mysql.conf 
+# Probably, you will need to update the database credentials in this file.
 
+# You can enable the ido-mysql feature configuration file using icinga2 feature enable:
 
-Moneta DB 		- Windows server 2008/2012 - 10GB RAM
-Kerio Connect	- Windows OS / Linux OS - 4GB RAM
-SEPM			- Windows OS - 4GB RAM
-Samba			- Debian OS - 2GB
-Backup server	- Debian OS - 2GB
+icinga2-enable-feature ido-mysql
+/etc/init.d/icinga2 restart
+
+#########################
+# INSTALLING WEB SERVER #
+#########################
+
+apt-get install apache2
+
+# Set up and check iptables rules. Allow 80 port.
+
+# Setting Up External Command Pipe
+
+icinga2-enable-feature command
+/etc/init.d/icinga2 restart
+
+# By default the command pipe file is owned by the group icingacmd with read/write permissions. 
+# Add your webserver's user to the group icingacmd to enable sending commands to Icinga 2 through your web interface:
+
+usermod -a -G nagios www-data
+
+#################
+# BACKUP ICINGA #
+################# 
+
+# Ensure to include the following in your backups:
+# Configuration files in /etc/icinga2
+# Runtime files in /var/lib/icinga2 (the master's CA is stored here as well)
+# Optional: IDO database backup
+
