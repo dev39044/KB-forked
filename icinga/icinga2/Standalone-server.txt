@@ -4,7 +4,22 @@
 # REQUIREMENTS #
 ################
 # At least 4 GB RAM and a good CPU
-# This config has been tested on: Debian 8 x64
+
+#####################################################################
+# 						W A R N I N G !!!							#
+# 	This config has been tested on: Debian 8 x64					#
+# 	BE CAREFUL WHEN ADDING REPOs BELOW! MATCH CORRECT DISTRO!		#
+#																	#
+#####################################################################
+
+##########################
+# ADD ICINGA-DEBIAN REPO #
+##########################
+
+wget -O - https://debmon.org/debmon/repo.key 2>/dev/null | apt-key add -
+echo 'deb http://debmon.org/debmon debmon-jessie main' >/etc/apt/sources.list.d/debmon.list
+apt-get update
+
 # Install below packages 
 apt-get install icinga2 mysql-server mysql-client icinga2-ido-mysql
 
@@ -13,8 +28,8 @@ apt-get install icinga2 mysql-server mysql-client icinga2-ido-mysql
 ###############
 
 mysql -u root -p
-mysql>  CREATE DATABASE icinga;
-mysql>  GRANT SELECT, INSERT, UPDATE, DELETE, DROP, CREATE VIEW, INDEX, EXECUTE ON icinga.* TO 'icinga'@'localhost' IDENTIFIED BY 'icinga';
+mysql> CREATE DATABASE icinga;
+mysql> GRANT SELECT, INSERT, UPDATE, DELETE, DROP, CREATE VIEW, INDEX, EXECUTE ON icinga.* TO 'icinga'@'localhost' IDENTIFIED BY 'icinga';
 mysql> quit
 
 # After creating the database you can import the Icinga 2 IDO schema using the following command:

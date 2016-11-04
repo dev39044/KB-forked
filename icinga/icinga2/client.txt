@@ -1,0 +1,29 @@
+# HOW TO SETUP ICINGA2 CLIENT SIDE?
+
+
+#####################################################################
+# 						W A R N I N G !!!							#
+# 	This config has been tested on: Debian 8 x64					#
+# 	BE CAREFUL WHEN ADDING REPOs BELOW! MATCH CORRECT DISTRO!		#
+#																	#
+#####################################################################
+
+# 1. Add Debian-Icinga repo 
+
+wget -O - https://debmon.org/debmon/repo.key 2>/dev/null | apt-key add -
+echo 'deb http://debmon.org/debmon debmon-jessie main' >/etc/apt/sources.list.d/debmon.list
+apt-get update
+
+# Installing icinga2 package with all basic plugins
+
+apt-get install icinga2
+
+# Run Icinga wizard for client configuration
+
+icinga2 node wizard
+
+# Now we need to select 'Yes' on the 1st question (i.e select Satellite setup) 
+Please specify if this is a satellite setup ('n' installs a master setup) [Y/n]: yes
+
+
+
