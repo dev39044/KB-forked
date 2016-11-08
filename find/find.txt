@@ -19,6 +19,8 @@ find /home -group developer														// To find all files that belongs to gr
 # Find Files and Directories Based on Date and Time #
 #####################################################
 
+# Find files between these dates, then sort it.
+find -newerct "1 Aug 2016" ! -newerct "1 Sep 2016" -ls |sort
 find / -mtime +50 -mtime -100													// Find all the files which are modified more than 50 days back and less than 100 days
 find / -cmin -60																// Find all the files which are changed in last 1 hour
 
