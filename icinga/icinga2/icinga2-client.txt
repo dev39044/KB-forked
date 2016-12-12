@@ -1,0 +1,60 @@
+# HOW TO SETUP ICINGA2 CLIENT SIDE?
+
+
+#####################################################################
+# 						W A R N I N G !!!							#
+# 	This config has been tested on: Debian 8 x64					#
+# 	BE CAREFUL WHEN ADDING REPOs BELOW! MATCH CORRECT DISTRO!		#
+#																	#
+#####################################################################
+
+# 1. Add Debian-Icinga repo 
+
+wget -O - https://debmon.org/debmon/repo.key 2>/dev/null | apt-key add -
+echo 'deb http://debmon.org/debmon debmon-jessie main' >/etc/apt/sources.list.d/debmon.list
+apt-get update
+
+# Installing icinga2 package with all basic plugins
+
+apt-get install icinga2
+
+# Run Icinga wizard for client configuration
+
+icinga2 node wizard
+
+# Now we need to select 'Yes' on the 1st question (i.e select Satellite setup) 
+Please specify if this is a satellite setup ('n' installs a master setup) [Y/n]: yes
+
+# When it comes to ask about master ticket hash, then run suggested command ON THE MASTER SERVER "icinga2 pki ticket --cn 'YOUR CLIENT HOSTNAME'"
+# SO RUN IT AS IT IS ON THE MASTER SERVER.
+# Then copy and paste generated ticket hash here.
+# This way, the client will copy <master>.ca and <master>.crt certificates to /etc/icinga2/pki/ folder
+
+# Answer with 'Yes' when ask you about "Copy config from master" or something like that.
+# After this config, reboot icinga.
+
+# 2. TROUBLESHOOTING:
+
+# Execute on master these 2 commands:
+icinga2 node list
+
+# You should see something like this:
+Node 'debian7' (last seen: Thu Nov 10 11:51:20 2016)
+    * Host 'debian7'
+        * Service 'apt'
+        * Service 'disk'
+        * Service 'disk /'
+        * Service 'http'
+		...
+
+# If not then start tcpdump -vvv -i <YOUR IFACE> port 5665 and see if there is some bits flying.
+# If there are none, then:
+# Please check in /etc/icinga2/zones.conf file if you have HOST & PORT clauses provided for your master server? If not, add them.
+object Endpoint "YOUR MASTER SERVER CN" {
+	host = "192.168.15.108" // YOUR MASTER SERVER IP ADDRESS. REMOVE THESE 2 COMMENTS WHEN YOU COPY THIS CONFIG
+	port = "5665" // THIS IS THE DEFAULT PORT
+}
+
+
+
+

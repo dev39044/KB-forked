@@ -23,13 +23,27 @@ apt-get update
 # Install below packages 
 apt-get install icinga2 mysql-server mysql-client icinga2-ido-mysql
 
+The default installation will enable three features required for a basic Icinga 2 installation:
+
+# checker for executing checks
+# notification for sending notifications
+# mainlog for writing the icinga2.log file
+#You can verify that by calling icinga2 feature list CLI command to see which features are enabled and disabled.
+
+icinga2 feature list
+ Disabled features: api command compatlog debuglog graphite icingastatus ido-mysql ido-pgsql livestatus notification perfdata statusdata syslog
+ Enabled features: checker mainlog notification
+ 
+# Where plugins are?
+ll /usr/lib/nagios/plugins/
+
 ###############
 # MySQL SETUP #
 ###############
 
 mysql -u root -p
-mysql> CREATE DATABASE icinga;
-mysql> GRANT SELECT, INSERT, UPDATE, DELETE, DROP, CREATE VIEW, INDEX, EXECUTE ON icinga.* TO 'icinga'@'localhost' IDENTIFIED BY 'icinga';
+mysql> CREATE DATABASE icinga2;
+mysql> GRANT SELECT, INSERT, UPDATE, DELETE, DROP, CREATE VIEW, INDEX, EXECUTE ON icinga2.* TO 'icinga'@'localhost' IDENTIFIED BY 'YOUR--PASSWORD--HERE--PLEASE';
 mysql> quit
 
 # After creating the database you can import the Icinga 2 IDO schema using the following command:
@@ -41,21 +55,39 @@ mysql -u root -p icinga < /usr/share/icinga2-ido-mysql/schema/mysql.sql
 
 # You can enable the ido-mysql feature configuration file using icinga2 feature enable:
 
-icinga2-enable-feature ido-mysql
+icinga2-enable-feature ido-mysql command mainlog checker
 /etc/init.d/icinga2 restart
+
+######################
+# Set up Master node #
+######################
+
+# You need to execute command:
+icinga2 node wizard
+
+# where choose "n" is this is your Master server, or "Y" if this is a client or satellite server.
 
 #########################
 # INSTALLING WEB SERVER #
 #########################
 
-apt-get install apache2
+# Official docs here: https://github.com/Icinga/icingaweb2/blob/master/doc/02-Installation.md
+apt-get install apache2 php5-intl php5-curl
+
+# Set up date.timezone in php "vi /etc/php5/apache2/php.ini" , then reload apache2 
+date.timezone = Europe/Sofia
+service apache2 reload
+
+# Generate icingaweb2 token like this:
+icingacli setup token create
+
+# Then open your browser and type:
+http://localhost/icingaweb2/
+
+# Put generated token in this page and on next screen enable icingaweb2-doc module as well
+
 
 # Set up and check iptables rules. Allow 80 port.
-
-# Setting Up External Command Pipe
-
-icinga2-enable-feature command
-/etc/init.d/icinga2 restart
 
 # By default the command pipe file is owned by the group icingacmd with read/write permissions. 
 # Add your webserver's user to the group icingacmd to enable sending commands to Icinga 2 through your web interface:
