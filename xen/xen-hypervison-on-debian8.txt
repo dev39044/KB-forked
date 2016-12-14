@@ -1,0 +1,130 @@
+# XEN 4.4 installed on Debian 8 x64
+
+################
+# REQUIREMENTS #
+################
+
+# 0. Installed Debian OS x64
+# 1. CPU with virtualization support, check with:
+egrep '(vmx|svm)' /proc/cpuinfo
+
+# 2. Enough HW power, more CPU cores, RAM etc. 64 bit OS
+# 3. Take time to devide HDD partitions, RAIDs etc.
+# It's good to have something like this:
+- efi partition should be ~ 512MB
+- root partition is ~ 10 GB
+- swap here is 4 GB on 32 GB phisycal memory
+- the rest is an lvm partition
+
+Model: ATA SanDisk Ultra II (scsi)
+Disk /dev/sda: 480GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system     Name  Flags
+ 1      1049kB  512MB   511MB   fat32           efi   boot, esp
+ 2      512MB   10.5GB  10.0GB  ext4            root
+ 3      10.5GB  14.5GB  4000MB  linux-swap(v1)  swap
+ 4      14.5GB  480GB   466GB                         lvm
+
+
+################
+# INSTALLATION #
+################
+
+# Install needed packages
+apt-get install xen-linux-system xen-tools
+
+# Change priorities of grub2 menu list
+dpkg-divert --divert /etc/grub.d/08_linux_xen --rename /etc/grub.d/20_linux_xen
+
+# Then you need to update grub
+update-grub
+
+#############
+# CONFIGURE #
+#############
+
+# Add to /etc/default/grub following lines in order to limit dom0 to 1 cpu and 1G of RAM.
+
+# Xen boot parameters for all Xen boots(dom0-cpus 1)
+GRUB_CMDLINE_XEN="'dom0_mem=1024M,max:1024M' dom0_max_vcpus=1 dom0_vcpus_pin"
+
+
+# Then create (if doesn't exist) /etc/xen/xend-config.sxp
+vi /etc/xen/xend-config.sxp 
+
+# and put these lines:
+
+(dom0-min-mem 1024)
+(enable-dom0-ballooning no)
+(dom0-cpus 1)
+
+# Then edit these lines in /etc/default/xendomains like this:
+
+XENDOMAINS_RESTORE=false
+XENDOMAINS_SAVE=""
+
+# Then you need to update grub
+update-grub
+
+#########################
+# NETWORK BRIDGE CONFIG #
+#########################
+
+Edit /etc/network/interfaces like this:
+
+auto lo
+iface lo inet loopback
+
+iface eth1 inet manual
+
+allow-hotplug xenbr1
+auto xenbr1
+iface xenbr1 inet static
+        bridge_ports eth1
+        address 192.168.1.226
+        broadcast 192.168.1.255
+        netmask 255.255.255.0
+        gateway 192.168.1.1
+        
+# DO NOT STOP eth1 iface using ifdown/ifconfig when you work remotely!
+# Instead clear assigned addresses using below command:
+ip addr flush dev eth1 
+
+
+######################
+# XEN TOOL XL CONFIG #
+######################
+
+
+# To configure xen-tools, you can edit /etc/xen-tools/xen-tools.conf which contains default values that the xen-create-image script will use. 
+# The xen-create-image(8) manual page contains information on the available options. 
+
+# Example:
+xen-create-image --hostname <hostname> --ip <ip> --vcpus 2 --dist <lenny|squeeze|maverick|whatever>
+
+# To start the created VM and connect to VM console type: 
+xl create /etc/xen/configs/YOUR-VM-NAME.cfg -c 
+
+###############
+# XEN CONSOLE #
+###############
+
+# To access your VMs just type:
+
+xl console <vm-name> or <domID>
+
+
+
+
+
+
+
+
+
+
+
+
+
