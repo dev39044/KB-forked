@@ -18,6 +18,12 @@ apt-get update
 
 apt-get install icinga2
 
+# YOU NEED TO RESTART ICINGA ON MASTER SERVER AND CHECK IF 5665 PORT IS OPEN
+service icinga2 restart
+
+# Test from client side that port 5665 is open and you can connect!
+nc -vz MASTERSRV-IP 5665
+
 # Run Icinga wizard for client configuration
 
 icinga2 node wizard
@@ -25,7 +31,7 @@ icinga2 node wizard
 # Now we need to select 'Yes' on the 1st question (i.e select Satellite setup) 
 Please specify if this is a satellite setup ('n' installs a master setup) [Y/n]: yes
 
-# When it comes to ask about master ticket hash, then run suggested command ON THE MASTER SERVER "icinga2 pki ticket --cn 'YOUR CLIENT HOSTNAME'"
+# When it comes to ask about master ticket hash, then run suggested command ON THE MASTER SERVER "icinga2 pki ticket --cn 'YOUR CLIENT HOSTNAME' --salt <GET THIS SALT FROM /etc/icinga2/constants.conf and scroll to the last row>"
 # SO RUN IT AS IT IS ON THE MASTER SERVER.
 # Then copy and paste generated ticket hash here.
 # This way, the client will copy <master>.ca and <master>.crt certificates to /etc/icinga2/pki/ folder
