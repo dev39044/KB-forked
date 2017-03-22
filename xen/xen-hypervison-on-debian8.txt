@@ -73,7 +73,10 @@ update-grub
 # NETWORK BRIDGE CONFIG #
 #########################
 
-Edit /etc/network/interfaces like this:
+# CHECK IF YOU HAVE bridge-utils package first!
+apt-get install bridge-utils
+
+# Edit /etc/network/interfaces like this:
 
 auto lo
 iface lo inet loopback
@@ -88,11 +91,11 @@ iface xenbr1 inet static
         broadcast 192.168.1.255
         netmask 255.255.255.0
         gateway 192.168.1.1
-        
+
+# IF REBOOT is not possible, then manually enable xenbr1 BEFORE putting down ethX !!!        
 # DO NOT STOP eth1 iface using ifdown/ifconfig when you work remotely!
 # Instead clear assigned addresses using below command:
 ip addr flush dev eth1 
-
 
 ######################
 # XEN TOOL XL CONFIG #
