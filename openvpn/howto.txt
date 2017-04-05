@@ -1,5 +1,6 @@
 # MENU
-# 1. OpenVPN HELP - what, where, which, who etc.
+# 0. OpenVPN HELP - what, where, which, who etc.
+# 1. How to build openVPN server from scratch
 # 2. How to generate a NEW client certificate WITHOUT rebuild all keys?
 # 3. How to have a static DHCP address assigned to a client and exclude it from the pool? 
 # 4. What files do you need from client side in order to have working VPN?
@@ -9,12 +10,38 @@
 
 
 ###################
-# 1. OpenVPN HELP #
+# 0. OpenVPN HELP #
 ###################
 
 # Read here: https://openvpn.net/index.php/open-source/documentation/howto.html
 # OR type:
 openvpn --help
+
+#############################
+# 1. Install OpenVPN server #
+#############################
+
+apt-get install openvpn easy-rsa
+
+cp -ar /var/share/easy-rsa /etc/openvpn
+
+cd /etc/openvpn/easy-rsa
+
+mkdir keys
+
+# Here you need to edit vars file according your needs
+source ./vars
+
+# Bellow command will create index.txt and serial files in keys folder!This is important!
+./clean-all
+
+# I want to show you what exactly serial file contains in the beginning:
+cat keys/serial
+01
+
+./build-ca
+./build-dh
+./build-key-server <SERVER-HOSTNAME-HERE>
 
 #########################################################################
 # 2. How to generate a NEW client certificate WITHOUT rebuild all keys? #
