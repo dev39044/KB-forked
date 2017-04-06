@@ -128,8 +128,9 @@ client-to-client
 # I wouldn't be using Access network if our main company network was something other than 192.168.1.0 .
 # Access = 172.27.227.0/24 - this one is set up on servers that I want to have access to. Then I've
 # added a persistent route to them via VPN network:
-route -p add 10.117.218.0 mask 255.255.255.0 172.27.227.1  (WINDOWS COMMAND)
-# NOTE ABOVE COMMAND HAS BEEN REPLACED BY "push"-ing it to clients through server.conf file automatically 
+
+# This is used in order WinSRV to be able to see 10.117.218.0 network!
+route -p add 10.117.218.0 mask 255.255.255.0 172.27.227.1  (WINDOWS S E R V E R COMMAND)
 
 ##########################################
 # 7. How to revoke a client certificate  #
