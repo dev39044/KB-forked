@@ -72,10 +72,12 @@ git init
 # Then you have to have already created github.com account and repo named KB.
 # Enter below commands:
 git remote add origin https://github.com/diskmandata4/KB.git
-git push -u origin master
 
-# Then check with:
+# Then check if you have added your remote sources with:
 git remote -v  
+
+# To actually sync the whole KB tree use:
+git pull -u origin master
 
 ###################
 # Restoring files #
