@@ -6,9 +6,9 @@ Set oAutoIt = WScript.CreateObject("AutoItX3.Control")
 'WScript.Echo "This script will reset your google password 100 times so you can use an old password."
 
 
-sUN = "lovnitekameri@gmail.com"
-curPW = "valkata1010"
-oldPW = "valkata1"
+sUN = "your-gmail-address"
+curPW = "your-current-pw"
+oldPW = "your-original-old-pw"
 iSlowConnectionFactor = 1
 
 ChromeEXE = "chrome.exe"
