@@ -42,17 +42,3 @@ sed "s/line1/line1\d34/g" list.txt 				// this will "add" one double quote after
 												// the decimal number representation of any ACSII character. E.g. \d37 is "%" sign. COOL! Moreover you use
 												// double quotes from the beggining till the end of sed script, means that you can use VARIABLES! 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
