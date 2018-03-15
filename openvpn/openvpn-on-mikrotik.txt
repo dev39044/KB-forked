@@ -1,53 +1,53 @@
-# How to setup OpenVPN on Mikrotik router board
-# This is tested on RB 2011, v6.34
+############### How to setup OpenVPN on Mikrotik router board
+############### This is tested on RB 2011, v6.34
 
-# 1st generate CA, server & client certificates:
+############### 1st generate CA, server & client certificates:
 
 /certificate
 add name=ca-template common-name=ca days-valid=3650 key-size=2048 key-usage=crl-sign,key-cert-sign
 add name=server-template common-name=srv days-valid=3650 key-size=2048 key-usage=digital-signature,key-encipherment,tls-server
 add name=client-template common-name=client days-valid=3650 key-size=2048 key-usage=tls-client
 
-# After that, sign them
+############### After that, sign them
 sign ca-template name=ca-certificate
 sign server-template name=server-certificate ca=ca-certificate
 sign client-template name=client-certificate ca=ca-certificate
 
 # Next, export them to be available in FILES section in WebFig for download
 export-certificate ca-certificate export-passphrase=""
-export-certificate client-certificate export-passphrase=climA-atarO-4001
+export-certificate client-certificate export-passphrase=XXXXXXXXX
 
-# Define VPN dhcp pool
+################ Define VPN dhcp pool
 /ip
 pool add name="vpn-pool" ranges=192.168.55.100-192.168.55.120
 
-# Set up vpn profile (better use WebFig GUI)
+################ Set up vpn profile (better use WebFig GUI)
 /ppp
 profile add name="vpn-profile" use-encryption=yes local-address=192.168.55.1 dns-server=192.168.55.1 remote-address=vpn-pool
 
-# Define login creds
+################ Define login creds
 secret add name=XXXXXXX profile=vpn-profile password=XXXXXXXXXX
 
-# Activate vpn profile
+################ Activate vpn profile
 /interface ovpn-server server
 set default-profile=openVPN-profile certificate=server-certificate require-client-certificate=yes auth=sha1 cipher=aes256,blowfish128  enabled=yes
 
-# After that create needed SNAT, DNAT & filter rules in firewall
+################ After that create needed SNAT, DNAT & filter rules in firewall
 
-# A bit annoying step is being asked for the private key passphrase (in the addition to username/password). 
-# Mikrotik doesn’t allow export without it but fortunately we can use OpenSSL to change that:
+################ A bit annoying step is being asked for the private key passphrase (in the addition to username/password). 
+################ Mikrotik doesn’t allow export without it but fortunately we can use OpenSSL to change that:
 
 openssl.exe rsa -in client.key -out client.key
 Enter pass phrase for client.key:
 
-####### BELOW IS client.ovpn data.
-####### NOTE that client.ovpn file MUST be saved in unix/linux line ending in order to work on ANDROID!
+################ BELOW IS client.ovpn data.
+################ NOTE that client.ovpn file MUST be saved in unix/linux line ending in order to work on ANDROID!
 
-# CLIENT CONFIG
+################# CLIENT CONFIG
 client
 dev tun
 proto tcp
-remote 109.120.228.58 30018
+remote <SERVER-IP-ADDRESS> <PORT>
 resolv-retry infinite
 nobind
 persist-key
@@ -62,4 +62,4 @@ auth SHA1
 auth-user-pass
 redirect-gateway def1
 
-# EOF
+################## EOF
