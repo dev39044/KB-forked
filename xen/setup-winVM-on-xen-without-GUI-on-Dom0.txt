@@ -1,0 +1,32 @@
+# Here I'll describe how to set up Windows VM on Xen (Dom0) without any GUI installed on.
+
+# 1. We suppose you already have working Xen installation
+# 1.1 You have to create lvm partitions for your new VM
+# 2. Install java + vnc-java (the latter is actually vnc-viewer)
+
+apt-get install default-jre vnc-java
+
+# 3. You already have downloaded somewhere winXXX.ISO file, right? :)
+# 4. Below I'll provide you with working configuration to put in /etc/xen/configs/
+# Please verify all paths in the config file! 
+
+# --------------------------------------------------
+
+firmware_override = "/usr/lib/xen-4.4/boot/hvmloader"
+builder='hvm'
+memory = 4096
+vcpus=1
+name = "virtuozo"
+vif = ['bridge=xenbr1']
+disk = ['phy:/dev/vg0/virtuozosys,hda,w','file:/root/win2012-eval.iso,hdc:cdrom,r']
+acpi = 1
+device_model_version = 'qemu-xen'
+boot="d"
+sdl=1
+serial='pty'
+vnc=1
+vncunused=1
+vnclisten=""
+vncpasswd=""
+
+# ---------------------------------------------------
