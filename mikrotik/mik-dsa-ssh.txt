@@ -1,0 +1,14 @@
+# You can automate a lot of things in Mikrotik
+# 1st generate 1024 dsa key (this is the max bits by design!) using below command:
+# Don't use passphrase
+ssh-keygen -t dsa 
+
+# Then copy the dsa.pub key in your mik board using:
+
+scp -P <port> user@ip:/
+
+# VERY IMPORTANT! 
+# Once you assign an ssh key to your user account, you CANNOT log in with password!
+# So consider using separate account for automation ...
+# After coping the pub key, log into the mik router and type:
+/user ssh-keys import user=<USER ACCOUNT> public-key-file=<usually dsa.pub>
