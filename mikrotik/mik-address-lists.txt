@@ -1,0 +1,5 @@
+# How to add an address list in mikrotik
+/ip firewall address-list add address=23.249.175.124 list=IP-BLACKLIST timeout=5d
+
+# How to delete an address list
+/ip firewall address-list remove [/ip firewall address-list find list="list-name"]
