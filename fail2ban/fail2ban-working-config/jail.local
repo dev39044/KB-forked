@@ -60,14 +60,14 @@ usedns = warn
 #
 # Destination email address used solely for the interpolations in
 # jail.{conf,local} configuration files.
-destemail = fail2ban-KOBILA@vgeorgiev.net
+destemail = <DEST-EMAIL-HERE>
 
 #
 # Name of the sender for mta actions
-sendername = Fail2Ban-kobila
+sendername = Fail2Ban-<HOSTNAME-HERE>
 
 # Email address of the sender
-sender = vgsender@gmail.com
+sender = <SOURCE-EMAIL-HERE>
 
 #
 # ACTIONS
