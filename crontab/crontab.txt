@@ -48,7 +48,8 @@ This 2 files work like this:
 3. Systems files:
 - Folders like /etc/cron.hourly/* /etc/cron.monthly/* ... are systems crond folders.
 
-
+4. # Send reports monthly on 1st Tue
+15 10 * * 2 [ `date +\%d` -le 7 ] && /root/win-updates/win-update-reports/check.sh
 
 
 

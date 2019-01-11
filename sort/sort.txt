@@ -40,3 +40,12 @@ cwcch15.pdf
 cwcch16.pdf
 cwcch17.pdf
 cwcch18.pdf  
+
+### 
+### SORT DATES IN FORMAT MM/DD/YYYY
+
+sort -h -t / -k 3 -k 2 -k 1 <YOUR-FILE>
+
+# -h = this is human-readable format that distinguish 3, 13 and 31 will be sorted 3,13,31 instead of 13,3,31 (1st digit)
+# -t = this is separator ;) so it can be comma, / , \ etc.
+# -k = this is the first column according your delimiter. So, next -k args are: sort first by column 3, then by column 2 and finally by col.1
