@@ -45,10 +45,11 @@ Windows Registry Editor Version 5.00
 # Setting up stunnel
 
 1. Download and install stunnel from stunnel.org
-2. During install you'll be asked where file to be extracted. Note that you might need not to change that path
-in order the service (in system tray) to work.
-3. When you see stunnel in System tray, right click on it and edit configuration.
-There you need only these lines:
+2. To install stunnel as a windows service open cmd.exe and type:
+
+stunnel -install <PATH-to-your-config-file> (e.g C:\stunnel\config\stunnel.conf)
+
+3. Put in stunnel.conf these lines only:
 
 [gmail-smtp]
 client = yes
@@ -59,7 +60,7 @@ CAfile = ca-certs.pem
 checkHost = smtp.gmail.com
 OCSPaia = yes
 
-4. Save and reload config.
+4. Save and start the service -- net start stunnel
 5. Now you should be able to send test email using "-M test" agrument in smartd.conf
 
 
