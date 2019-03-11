@@ -1,0 +1,24 @@
+###
+### MIGRATE SINGLE DISK WITH LVM TO MD RAID1 WITH LVM 
+###
+
+### Create gpt part table using parted
+
+### Create 512MB UEFI boot part. Format it with fat32, FLAGS=boot,esp
+
+### Create separate swap partition as RAID1
+
+### Create other left free space as RAID1 with 2 disks and 1 missing
+mdadm -C /dev/mdX -n 2 -l raid1 missing /dev/sdb
+
+### Initialize root md raid partition as lvm pv
+pvcreate /dev/mdX
+
+### Add newly created pv to existing vg0
+
+### Move all extends from old disk to new one
+
+### Copy /boot to newly created boot partition
+
+### Try to set up GRUB with fallback option. Update GRUB config with the new boot UUID.
+

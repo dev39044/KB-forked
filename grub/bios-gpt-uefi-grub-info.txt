@@ -1,0 +1,20 @@
+BIOS + MBR:
+	- MBR is the 1st sector of unpartitioned disk or 1st sector of the 1st partition. 512 bytes in size. 
+	- GRUB put core.img in post-MBR gap space, right after the MBR. 
+	- BIOS chip should be in legacy mode
+
+BIOS + GPT:
+	- On a BIOS/GPT configuration, a BIOS boot partition is required, 1MB or 2MB in size. GRUB embeds its core.img into this partition.
+	- This additional partition is only needed on a GRUB, BIOS/GPT partitioning scheme.
+	- BIOS chip should be in legacy mode
+	- For UEFI systems this extra partition is not required, since no embedding of boot sectors takes place in that case. However, UEFI systems still require an EFI system partition.
+	- This partition can be in any position order but has to be on the first 2 TiB of the disk!
+	- To have the viewable partitions begin at the base consider adding this partition last.
+
+UEFI + GPT:
+	- BIOS chip should be in UEFI mode
+	- The EFI system partition (also called ESP) is an OS independent partition that acts as the storage place for the EFI bootloaders, applications and drivers to be launched by the UEFI firmware. It is mandatory for UEFI boot.
+	- Create ESP partition with 600MB in size, format it with fat32. Warning: The EFI system partition must be a physical partition in the main partition table of the disk, not under LVM or software RAID etc.
+	- EFI partition shoud be mounted like this: /dev/sdaX /boot/efi , where inside should be folder EFI/<OS>/<loader-name/<loader-file>.efi
+	- it's wrong to mount /boot and efi to be inside it. Just have / with boot and as separate partition create & mount /dev/sdaX as /boot/efi (real consumed size is less than 200KB...anyway) 	
+	

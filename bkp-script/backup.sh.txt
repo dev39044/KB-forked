@@ -1,0 +1,176 @@
+#!/bin/bash
+
+##########################
+# Define target hostname #
+##########################
+HOST=<HOSTNAME>
+
+##################################################################
+# How many days to wait (backups to fail) before notify my boss? #
+# E.g if target user is on vacantion 14 days you'll get a lot of #
+# notifications. Usually 7 (a week) is a good number.            #
+##################################################################
+FLIMIT=<NUM>
+
+#########################################################
+# Specify destination backup path on your backup server #
+# Usually you don't need to change this value.          #
+#########################################################
+BKPPATH=/BACKUP/"$HOST"
+
+#########################################################
+# Specify your source backup folders.                   #
+# NOTE: TYPE the full path as it is, i.e with slashes!  #
+#########################################################
+DIR1="root@$HOST:/FILES"
+DIR2="root@$HOST:/home"
+DIR3="root@$HOST:/etc"
+DIR4="root@$HOST:/root"
+DIR5="root@$HOST:/var"
+DIR6="root@$HOST:/usr"
+
+##############################################################
+# Define rsync switches.                                     #
+# Add "AX" if you want to include acl + extended attributes! #
+# Add -W if there is any kind of important DB files          #
+##############################################################
+ROPTION=(
+        -avhzAX
+        --stats
+        -e 'ssh -p <PORT-NUM-IF-NOT-DEFAULT-22>'
+        --progress
+        --delete-after
+        --link-dest="$BKPPATH"/current
+)
+
+# Define date var for log files
+DATE=$(date +%a_%d_%b_%R)
+
+# Define date var for rsync sync
+DATE2=$(date +%d_%m_%Y_%T)
+
+# Define date var as log file counter
+DATE3=$(date +%d)
+
+####################
+# Define log files #
+####################
+LOG=data-"$DATE3"-"$HOST".log
+ELOG=data-"$DATE3"-"$HOST".err
+
+####################################
+# Define current working directory #
+####################################
+cd /root/bkp-tasks/"$HOST"
+
+##############
+# host check #
+##############
+ping -c 10 $HOST
+
+if ! [[ "$?" -eq 0 ]]; then
+
+        if ! [[ -f fcount.txt ]]; then
+                echo 0 > fcount.txt
+        fi
+
+        FCOUNT=$(cat fcount.txt)
+        ((FCOUNT++))
+        echo $FCOUNT > fcount.txt
+        
+        if [[ $FCOUNT -lt $FLIMIT ]]; then
+                echo "Host is down. Exiting..."
+                exit
+        else
+cat > summary.txt <<EOL
+To:<DEST-EMAIL>
+From:<SRC-EMAIL>
+Subject: $HOST is down for more than $FLIMIT days !
+      
+Please, check why this host failed so many times.
+EOL
+
+                /usr/sbin/ssmtp <DEST-EMAIL> < summary.txt
+                exit
+        fi
+else
+        echo 0 > fcount.txt
+fi
+
+####################################
+# Check for missing folders/files  #
+####################################
+if ! [[ -d $BKPPATH/links ]] ; then
+        mkdir $BKPPATH/links
+fi
+
+if ! [[ -d old-files ]] ; then
+        mkdir old-files
+fi
+
+######################
+# Move old log files #
+######################
+mv -f data* old-files
+
+########################
+# Rsync backup command #
+########################
+{ time rsync \
+"${ROPTION[@]}" \
+$DIR1 \
+$DIR2 \
+$DIR3 \
+$DIR4 \
+$DIR5 \
+$DIR6 \
+$BKPPATH/links/"$DATE2" \
+ 1>"$LOG" \
+2>>"$ELOG" ; } 2>>"$LOG"
+
+rm -rf "$BKPPATH"/current
+ln -s "$BKPPATH"/links/"$DATE2" "$BKPPATH"/current
+
+####################################################
+# Adding some additional information to log files: #
+####################################################
+                
+for ALOG in *.log; do
+cat >> "$ALOG" <<EOL
+----                               
+Today is $DATE 
+End-of-file $ALOG
+=========================
+EOL
+done
+
+# Preparing summary file:
+
+cat > summary.txt <<EOL
+To:<DEST-EMAIL>             
+From:<SRC-EMAIL>
+Subject: #5 $HOST backup results
+* START OF RSYNC TRANSFER STATISTICS *
+EOL
+
+for TAIL in *.log; do
+        tail -21 "$TAIL"                        >> summary.txt
+done
+
+echo '* END OF RSYNC TRANSFER STATISTICS *'     >> summary.txt
+
+# Add error information to the summary file and email it:
+
+if [[ -s "$ELOG" ]] ; then
+
+        echo '* START OF RSYNC ERROR STATISTICS *'      >> summary.txt
+        cat "$ELOG"                                     >> summary.txt
+        echo '* END OF RSYNC ERROR STATISTICS *'        >> summary.txt
+
+        /usr/sbin/ssmtp <DEST-EMAIL>          < summary.txt
+else
+        /usr/sbin/ssmtp <DEST-EMAIL>          < summary.txt
+
+fi
+
+# End-of-file
