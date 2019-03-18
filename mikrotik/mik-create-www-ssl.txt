@@ -1,0 +1,23 @@
+# Log into your router
+
+# Enter in Certificate menu
+ /certificate
+
+# Generate root-cert certificate
+ add name=root-cert common-name=MyMikTG days-valid=3650 key-usage=key-cert-sign,crl-sign
+
+# Sign it
+ sign root-cert
+
+# I made https-cert valid for 2 years, change days as you like
+ add name=https-cert common-name=<WAN-IP> days-valid=730 key-size=4096 organization=<COMPANY> \
+ key-usage=digital-signature,key-agreement,key-encipherment,data-encipherment,key-cert-sign
+
+ sign ca=root-cert https-cert
+ 
+ # make https-cert trusted
+ set https-cert trusted=yes
+
+# Now assign newly created cert to your ssl service port
+ /ip service
+ set www-ssl certificate=https-cert disabled=no
