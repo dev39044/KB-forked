@@ -1,0 +1,67 @@
+# Things to download:
+# - smarmontools
+# - blat (smtp server for windows)
+# - stunnel (you need it if your smtp server require ssl/tls - gmail does.)
+
+
+# SMARTMONTOOLS
+
+1. Install package smartmontools-XXXXX.win32-setup.exe. To install smartd service,
+go to Windows Start menu > smartmontools folder > smartd examples, and click on 
+the bat fie "Service install, smartd.log, 10min".
+
+2. Go to C:\Program Files\smartmontools\bin and edit smartd.conf.
+Put there:
+
+/dev/sda -a -m <YOUR-DEST-EMAIL> -M diminishing 
+
+Try before that with "test" instead of "diminishing".
+
+NOTE: You must have blat and stunnel already setup in order to successfully sent email with "-M test" !
+
+# Setting up blat
+
+1. Download blat from https://sourceforge.net/projects/blat/files/
+2. Extract it in C:\Windows and C:\Windows\System32 (you need to have it in PATH var)
+3. Open cmd.exe and type: 
+
+	blat -install -server 127.0.0.1 -f <YOUR-FROM-EMAIL-ADDR> -u <USERNAME> -pw <PASS>
+
+This have to create a reg entry in HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Public Domain\Blat with info like this:
+
+
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Public Domain\Blat]
+"SMTP Server"="127.0.0.1"
+"SMTP Port"="25"
+"Try"="1"
+"Login"="XXXXXXXX" (encrypted)
+"Pwd"="XXXXXXXXXX" (encrypted)
+"Sender"="XXXXXXX@gmail.com"
+  
+4. Now in order above default blat profile to work you need stunnel to provide SSL/TLS capability.
+
+# Setting up stunnel
+
+1. Download and install stunnel from stunnel.org
+2. To install stunnel as a windows service open cmd.exe and type:
+
+stunnel -install <PATH-to-your-config-file> (e.g C:\stunnel\config\stunnel.conf)
+
+3. Put in stunnel.conf these lines only:
+
+[gmail-smtp]
+client = yes
+accept = 127.0.0.1:25
+connect = smtp.gmail.com:465
+verifyChain = yes
+CAfile = ca-certs.pem
+checkHost = smtp.gmail.com
+OCSPaia = yes
+
+4. Save and start the service -- net start stunnel
+5. Now you should be able to send test email using "-M test" agrument in smartd.conf
+
+
+ 
