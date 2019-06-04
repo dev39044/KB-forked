@@ -20,7 +20,7 @@
 # - ...same with macs.wol file but with MAC addresses only.
 #  
 # AUTHOR:					
-# 03/2019, Valentin Georgiev <admin@vgeorgiev.net> 
+# 03/2019, Valentin Georgiev <dev@vgeorgiev.net> 
 #
 
 # set correct CWD
