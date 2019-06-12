@@ -22,6 +22,25 @@ src_rb=192.168.1.1
 # Destination RB
 dst_rb=192.168.1.3
 
+# Add email notification data
+cat > summary.txt <<EOL
+To: <EMAIL>
+From: <EMAIL>
+Subject: Mik Sync failed
+EOL
+
+# Check if RBs are accessible || exit
+for i in "$src_rb" "$dst_rb"
+do 
+	ping $i -c 5 -W 10
+	if  [ $? -ne 0 ] ; then
+		echo "RB $i is not accessible!" >> summary.txt
+		echo "Script aborted!" >> summary.txt
+		/usr/sbin/ssmtp <EMAIL> < summary.txt	
+		exit
+	fi
+done
+
 # Add commands for removal of destination RB's current data
 echo '
 /ip firewall filter remove [/ip firewall filter find]
@@ -29,7 +48,8 @@ echo '
 /ip firewall nat remove [/ip firewall nat find]
 /ip firewall layer7-protocol remove [/ip firewall layer7-protocol find]
 /ip pool remove [/ip pool find]
-' > src_rb.rsc
+/ip dhcp-server lease remove [/ip dhcp-server lease find]
+' > src_rb.rsc 
 
 # # # IMPORTANT !!! 
 # # # ORDER OF EXECUTING BELOW COMMANDS IS IMPORTANT !!!
@@ -40,7 +60,8 @@ cmds[0]='/ip firewall address-list export'
 cmds[1]='/ip firewall layer7-protocol export'
 cmds[2]='/ip firewall filter export'
 cmds[3]='/ip firewall nat export'
-cmds[4]='ip pool export'
+cmds[4]='/ip pool export'
+cmds[5]='/ip dhcp-server lease export'
 
 for i in "${cmds[@]}" ; do ssh -p 30017 kobila@"$src_rb" $i ; done >> src_rb.rsc
 
