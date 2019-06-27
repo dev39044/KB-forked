@@ -1,0 +1,28 @@
+#--------------------- KEEP CHANGES ------------------------------
+# KEEP changes made after you created a LVM snapshot #
+# So, just remove the snapshot using below command:
+
+lvremove /dev/vgX/lvX
+
+That's it. 
+
+#--------------------- DISCARD CHANGES ---------------------------
+# You want to DISCARD all the changes since you've made a snapshot.
+# Well, then you have to MERGE your snapshot with your original LV.
+# Think about VMware snapshots, it's the same COW (copy-on-write) logic.
+
+# 1. Umount both the snapshot and your orig LV.
+# If you cannot do it, merge will not start since next LV activation (system reboot).
+
+# 2. Use below command to start the process:
+
+lvconvert --merge group/snap-name
+
+#--------------------- CREATING SNAPSHOTS -------------------------
+
+# Snapshot size always should be equal to LV size. You have also option for
+# dynamically expanding of LV size in /etc/lvm/lvm.conf.
+# In order to create a snapshot use below command:
+
+lvcreate -L 20G -s -n before-upg-to-php7.3 /dev/mapper/vg0-test--disk
+
