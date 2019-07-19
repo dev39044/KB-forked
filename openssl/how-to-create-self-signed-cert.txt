@@ -1,20 +1,7 @@
-# 1st you need to have private key.
-# Use below command to generate RSA 2048 bit key pair
+# Use below command to generate RSA 4096 bit key pair & self-signed cert.
+# Use -nodes to skip typing a password to protect the key
 
-openssl genrsa -out priv.key 2048
-
-# You can have a bit more detailed info about generated key with below command:
-
-openssl rsa -in priv.key -text -noout
-
-# Now with below command you will generate (and sign) self-signed certificate:
-# You need to fill in required data.
-
-openssl req -new -x509 -days 365 -key priv.key -out https.crt
-
-# Generated file is a PEM file and you can change *.crt extention to .pem if needed
-# That's it.
-
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 
 # Check out Let's encrypt and ACME protocol for a free & trusted certs.
 # ACME protocol is Automated Certificate Management Environment and is used
