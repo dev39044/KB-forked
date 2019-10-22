@@ -1,0 +1,15 @@
+# Let's suppose that you want to access some local App
+# that accept only local subnet IPs, e.g you cannot access it
+# via normal port forwarding like WAN:portFwd, instead
+# it work's with ssh port fwd and then http://localhost:PortFwd
+
+# Now, in order to make it work you should create 2 rules in Firewall NAT table.
+# 1. Add normal dst-nat port forwarding
+# 2. Add src-nat rule AFTER above one that should be something like that:
+
+Chain: src-nat
+Dst-address: App/Service LOCAL IP address, e.g 192.168.10.20
+Proto: TCP (e.g)
+Action: src-nat
+To-address: this one should be the source IP that you want your packet to go out with.
+Normally, this one should be a local router interface IP.
