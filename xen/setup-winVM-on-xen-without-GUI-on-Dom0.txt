@@ -1,32 +1,45 @@
 # Here I'll describe how to set up Windows VM on Xen (Dom0) without any GUI installed on.
+# It was tested on Debian 10 Buster.
 
 # 1. We suppose you already have working Xen installation
-# 1.1 You have to create lvm partitions for your new VM
-# 2. Install java + vnc-java (the latter is actually vnc-viewer)
-
-apt-get install default-jre vnc-java
-
+# 2. Create lvm partitions for your new VM
 # 3. You already have downloaded somewhere winXXX.ISO file, right? :)
 # 4. Below I'll provide you with working configuration to put in /etc/xen/configs/
 # Please verify all paths in the config file! 
 
+# DRIVERS:
+# If Xen VM Windows has missing drivers, try to install them from here:
+# https://xenbits.xen.org/pvdrivers/win/
+# Below config was tested on Windows Servers 2019 + drivers 8.2.2 from above link
+
+# 
+#  More info about all options  ==>  man xl.cfg
 # --------------------------------------------------
 
-firmware_override = "/usr/lib/xen-4.4/boot/hvmloader"
-builder='hvm'
-memory = 4096
-vcpus=1
-name = "virtuozo"
-vif = ['bridge=xenbr1']
-disk = ['phy:/dev/vg0/virtuozosys,hda,w','file:/root/win2012-eval.iso,hdc:cdrom,r']
-acpi = 1
-device_model_version = 'qemu-xen'
-boot="d"
-sdl=1
-serial='pty'
-vnc=1
-vncunused=1
-vnclisten=""
-vncpasswd=""
+# Check Xen firmware version and change path accordingly!
+	firmware_override = "/usr/lib/xen-<VERSION>/boot/hvmloader"
+	type='hvm'
+	memory = 4096
+	vcpus=1
+	name = "<VM-HOSTNAME>"
 
+# Check name of your bridge iface 
+	vif = ['bridge=xenbr1']
+
+# Use this string to show from which device the vm to boot from
+	# d == CR-ROM
+	boot=d
+
+# WITH CD-ROM or without
+	# disk = ['phy:/dev/vg0/virtuozosys,hda,w','file:/root/win2012-eval.iso,hdc:cdrom,r']
+
+
+	disk = ['phy:/dev/vg0/virtuozosys,hda,w']
+	acpi = 1
+	device_model_version = 'qemu-xen'
+	serial='pty'
+
+# This command tells vnc to listen to 0.0.0.0 , if missing it will be bounded to localhost
+	vnclisten=""	
+	vncpasswd="<1Strong-Pass-Here!!!>"
 # ---------------------------------------------------
