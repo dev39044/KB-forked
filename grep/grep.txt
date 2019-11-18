@@ -54,7 +54,7 @@ CCCCCC
 
 # To match any VALID IP address in a file, use the below construction:
 
-grep -oE "\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b" 
+grep -wE "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" 
 
 # Let's explain it in details:
 # 1. grep -E  -- turns on "extended" grep version, i.e to understand the 
