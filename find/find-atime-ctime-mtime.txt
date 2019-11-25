@@ -1,0 +1,16 @@
+# Below is explanation of find *time arguments:
+# When you use find -mtime +1 , it actually means that
+# file should be modified at least 48h ago, where "+" means more than that. 
+
++0 == 24h+
++1 == 48h+
++2 == 72h+
++3 == 96h+
++4 == 120h+
+
+0 == 0-24h between "now" and 24h time frame
+1 == 24-48h
+2 == 48-72h
+3 == 72-96h
+
+-mtime 4 , means that file modification date should be between 96 and 120h. 
