@@ -1,0 +1,5 @@
+# Here we'd take the approach to search into specific file extentions only.
+
+grep -r --include={*.txt,*.json,*.php,*.ini,*.sqlite,*.htm*,*.conf,*.lst,*.sql,*.yaml,*.db} <search-for-word>
+
+
