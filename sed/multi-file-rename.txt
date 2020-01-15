@@ -1,0 +1,16 @@
+# If you wanna rename multiple file names check "rename" command or
+# use for loop in the following way:
+
+for i in your-file-names* ; mv -v "$i" "${i/your-file-names/your-new-file-names}"
+
+# Above is true according to BASH rules:
+
+${var/Pattern/Replacement}
+First match of Pattern, within var replaced with Replacement.
+
+If Replacement is omitted, then the first match of Pattern is replaced by nothing, that is, deleted.
+
+${var//Pattern/Replacement}
+Global replacement. All matches of Pattern, within var replaced with Replacement.
+
+As above, if Replacement is omitted, then all occurrences of Pattern are replaced by nothing, that is, deleted.

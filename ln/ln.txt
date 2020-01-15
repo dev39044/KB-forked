@@ -1,14 +1,35 @@
 #################################################################################
-# Examples of ln:																#
-# By default ln will create hard link, i.e 2 files pointing to the same inode # #
+# Examples of ln:								#
+# By default ln will create hard link, i.e 2 files pointing to the same inode   #
 # NOTE: hard links CANNOT extend 2 different filesystems, symbolic links CAN. 	#
-# NOTE: hard link to directory is NOT possible!									#
+# NOTE: hard link to directory is NOT possible!					#
+# Relative symlinks are suitable for different file systems. Use -r switch	#
 #################################################################################
 
 ln /path/to/original/file /path/to/the/shortcut -- this will create a hard link in mentioned path.
 
 ln (-s) /path/to/original/file  -- this will create a hard (or soft with -s) link from original dest file to the current dir with name "file", i.e the same name.
 
+e.g:
+
+val@moskvich:~$ pwd
+/home/val
+
+val@moskvich:~$ ln -sv test/test.sh 
+'./test.sh' -> 'test/test.sh'
+
+val@moskvich:~$ ll test.sh 
+lrwxrwxrwx 1 val val 12 дек  6 15:09 test.sh -> test/test.sh
+------------------------------------------------------------
+
 ln -s /path/to/DIR1 /path/to/the/shortcut -- symbolic link (shortcut) pointing to DIR1
 
- 
+#####################
+# RELATIVE Symlinks #
+#####################
+
+val@moskvich:~$ ln -srv test/test.sh test/test2/zz
+'test/test2/zz' -> '../test.sh'
+
+val@moskvich:~$ ll test/test2/zz 
+lrwxrwxrwx 1 val val 10 дек  6 15:12 test/test2/zz -> ../test.sh  
