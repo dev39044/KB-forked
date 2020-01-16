@@ -1,13 +1,8 @@
 # You need custom mikrotik watchdog as default one just sucks :/
-# Here you can have 2 wan ips that are to be monitored as well as 
+# Here you can have 3 wan ips that are to be monitored as well as 
 # full freedom about ping counts, delays etc...
 
-# Here we ping 2 wan ips with 150 packets (which means seconds), and if number of successfully send/received
-# packets is equal to 0, then we reboot the router.
 # Note that during reboot, poe-out iface is also reset (it was tested).
-
-:if ( [/ping 8.8.4.4 count=150 ]=0 && [/ping 212.39.90.43 count=150 ]=0 ) do={ /system reboot }
-
 # In Mikrotik world in order to see exit status of a command, try with:
 
 :put [ command ] 
@@ -22,11 +17,9 @@ then mikrotik router waits 997ms, before sending another packet.
 ----------------------------------------------------------------
 # Below is exported code from a mikrotik router:
 
-# define script
-/system script
-add name=vgwatchdog owner=vgroot policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=\
-    ":if ( [/ping 8.8.8.8 count=150 ]=0 && [/ping 212.39.90.43 count=150 ]=0 ) do={ /system reboot }"
-
+# define script. We test our inet connection with 3 diff dns providers
+system script add name=vgwatchdog owner=vgroot policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=\
+    ":if ( [/ping 1.1.1.1 count=3 interval=5 ]=0 ) do={ :if ( [/ping 8.8.4.4 count=30 interval=5 ]=0 && [/ping 208.67.222.222 count=30 interval=5 ]=0 ) do={ /system reboot} }"
 
 # FIX SCHEDULE START TIMES!!!
 /system scheduler
