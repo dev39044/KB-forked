@@ -1,1 +1,26 @@
-# We suppose you have already set up Xen as well as  
+# We suppose you have already setup Xen and /etc/xen-tools/xen-tools.conf file. 
+# Above file is needed for xen-create-image tool which in turn generates configurations
+# usually in /etc/xen or if configured in /etc/xen/configs/*.cfg
+
+# Note: DO NOT simply copy/paste <host>.cfg files. These files are generated automatically.
+
+# ----------------------------------------------------------------
+# Below are all steps needed to create a new linux vm on Xen host:
+
+1. Verify you have /etc/xen-tools/xen-tools.conf file configured appropriately.
+Do not create lvm partitions in advance. These will be created automatically for you
+if you have chosen to use lvm of course :)
+
+2. Use tool xen-create-image with most common args like:
+	 xen-create-image 			\
+		--dist=jessie 			\
+		--hostname=<HOSTNAME> 		\
+		--ip=<ADDRESS>	 		\
+		--size=<MAIN-VOL>		\
+		--swap=2G			\
+		--memory=4G			\
+		--vcpu=2			\
+
+3. After successful vm installation/image creation, you can run it like that:
+
+xl create -f /etc/xen/configs/<vm>.cfg 
