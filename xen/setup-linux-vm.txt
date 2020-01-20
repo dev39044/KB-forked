@@ -5,7 +5,8 @@
 # Note: DO NOT simply copy/paste <host>.cfg files. These files are generated automatically.
 
 # ----------------------------------------------------------------
-# Below are all steps needed to create a new linux vm on Xen host:
+# Below are all steps needed to create a new linux vm on Xen host,
+# usually using debootstrap method:
 
 1. Verify you have /etc/xen-tools/xen-tools.conf file configured appropriately.
 Do not create lvm partitions in advance. These will be created automatically for you
@@ -24,3 +25,21 @@ if you have chosen to use lvm of course :)
 3. After successful vm installation/image creation, you can run it like that:
 
 xl create -f /etc/xen/configs/<vm>.cfg 
+
+# ----------------------------------------------------------------------
+# CREATING XEN VM/IMAGE USING TAR METHOD {{{ IT'S THE FASTEST ONE!!! }}}
+# ----------------------------------------------------------------------
+
+# 1. You need to have installation source directory. Usually it's easier to 
+# first install a source/templete linux installation, mount lvm disk that
+# contains the whole root / and make a tar archive. E.g.
+
+tar -cvf my-os.tar -C /path/to/my/root/dir/ .
+
+# 2. Use xen-create-image tool to make your new vm/image:
+
+xen-create-image --hostname=HOSTNAME --ip=X.X.X.X --install-method=tar --install-source=/etc/xen/images/IMAGE.tar --verbose --boot
+
+# 3. Check with xl tool if your new vm is running fine:
+
+xl list 
