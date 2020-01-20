@@ -1,0 +1,10 @@
+# How to add auto backup task in mikrotik router
+
+# add script and set correct password
+/system script
+add dont-require-permissions=no name=backup policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=\
+    "/system backup save password=<YOUR-PASSWORD-HERE!> name=[:put [/system identity get name]] ; /export verbose file=[:put [/system identity get name]]"
+
+# add task in scheduler
+/system scheduler
+add interval=1d name=backup on-event=backup policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/22/2019 start-time=00:00:00

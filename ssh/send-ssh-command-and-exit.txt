@@ -1,0 +1,4 @@
+# Below command is suitable if you want to put at sleep a remote windows pc.
+# ssh option "ServerAliveInterval" waits in this case 2 seconds and timeouts ssh session/exits, if remote host is unreachable. 
+
+/usr/bin/ssh -o ServerAliveInterval=2 <YOUR-PC> 'rundll32.exe powrprof.dll,SetSuspendState 0,1,0' &>/dev/null
