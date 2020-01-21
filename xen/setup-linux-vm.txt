@@ -31,7 +31,7 @@ xl create -f /etc/xen/configs/<vm>.cfg
 # ----------------------------------------------------------------------
 
 # 1. You need to have installation source directory. Usually it's easier to 
-# first install a source/templete linux installation, mount lvm disk that
+# first install a source/template linux installation, mount lvm disk that
 # contains the whole root / and make a tar archive. E.g.
 
 tar -cvf my-os.tar -C /path/to/my/root/dir/ .
