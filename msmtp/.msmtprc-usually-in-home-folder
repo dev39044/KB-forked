@@ -7,6 +7,7 @@ port 587
 user <USERNAME>@gmail.com
 from <USERNAME>@gmail.com
 password <PASS>
+aliases /etc/aliases
 
 # CHANGE ALSO EMAILS IN /ETC/ALIASES !!!
 # e.g     root: root-YOUR-SERVER@<DOMAIN>
