@@ -36,3 +36,13 @@ tar -xf sample.tar -C /dir1
 	- backup files before removal (put ~ after filename)
 
 tar --selinux --backup --xattrs -Wvcf <YOUR ARCHIVE NAME + .EXT> <ORIGINAL FILE/FOLDER>
+
+# In order to create an archive WITHOUT path, do it like that:
+
+tar -cvf yourfile.tar -C /path/to/source/ . 
+
+# let your /path/to/source contains for linux installation /etc /boot /dev ...
+# if you do it with out -C option, then your archive will be tar-ed like that:
+/path/to/source/boot/..
+/path/to/source/dev/..
+/path/to/source/etc/..

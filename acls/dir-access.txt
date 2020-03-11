@@ -1,0 +1,29 @@
+1. In order to browse UX directory, i.e. list files, folders... you need -r permission 
+2. If you want to modify any file or subfolder, you need -w permission.
+3. If you want to traverse a folder, you need -x permission.
+
+Examples:
+
+# 1. You want to list and traverse a folder named Marketing. 
+This folder is located like that:
+
+/FILES/TEAM/Marketing 
+
+let's suppose that you want to share Marketing folder. In order users
+to be able to browse and traverse it, you need to set up +rx permissions
+on at least one use that has these rights. Usually it is group others.
+
+IF /FILES or TEAM folders lack +rx permissions, users cannot browse or traverse
+folder Marketing!!!
+
+# 2. If you have a Samba file server, DO NOT FORGET to put these options in smb.conf file:
+
+create mask = 0770
+force create mode = 0660
+directory mask = 0750
+force directory mode = 0750
+
+# they are used to force all new files and folders to lack permissions for others group: o-rx
+# This is needed because, when you usually give a user permissions to some main folder + sub folders and files,
+# if you have these o+rx permissions, then that user is able to read A LOT MORE information that you have expected!!!
+# You could put all needed permissions in acl groups, set acl defaults as well and that's it!  

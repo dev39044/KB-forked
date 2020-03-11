@@ -255,6 +255,10 @@
 
 
 [COMPANYDATA]
+	create mask = 0770
+	force create mode = 0660
+	directory mask = 0750
+	force directory mode = 0750
 	comment = Company file server
 	browseable = yes
 	read only = no
