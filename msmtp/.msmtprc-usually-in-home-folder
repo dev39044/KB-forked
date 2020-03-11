@@ -1,0 +1,40 @@
+[root@<USER> ~]# cat .msmtprc 
+account default
+tls on
+auth on
+host smtp.gmail.com
+port 587
+user <USERNAME>@gmail.com
+from <USERNAME>@gmail.com
+password <PASS>
+
+# CHANGE ALSO EMAILS IN /ETC/ALIASES !!!
+# e.g     root: root-YOUR-SERVER@<DOMAIN>
+# However, prior v1.8.6 of msmtp there is no
+# proper support or recursive aliases, which
+# means that you should add an '@' after all aliases.
+#
+# Check out this thread: https://unix.stackexchange.com/questions/318484/msmtp-does-not-understand-etc-aliases
+# Note, also that at the moment of writing 08.Nov.2019 v1.8.6 is buggy and not officially released in Debian repos.
+
+# ALIASES FILE
+
+[root@<USER> ~]# cat /etc/aliases 
+# /etc/aliases
+mailer-daemon: postmaster@
+postmaster: root@
+nobody: root@
+hostmaster: root@
+usenet: root@
+news: root@
+webmaster: root@
+www: root@
+ftp: root@
+abuse: root@
+noc: root@
+security: root@
+
+# VG ones
+root: root-<USER>@<DOMAIN>
+cron: cron-root-<USER>@<DOMAIN>
+default: <USER>@<DOMAIN>
