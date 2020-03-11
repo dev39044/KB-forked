@@ -1,0 +1,10 @@
+# To rename space to underscore for all files, do this:
+
+# Dry run with -n, remove it to make it actually :)
+
+rename -n "s/ /_/g" * 
+
+
+# This also works:
+
+for file in *; do mv "$file" `echo $file | tr ' ' '_'` ; done

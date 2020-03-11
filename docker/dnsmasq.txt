@@ -1,0 +1,62 @@
+# Below are commands needed to successfully run DNSmasq on docker.
+# It was tested on Debian 10, with docker version: 19.03.4, build 9013bf583a
+
+1. You need to have /etc/hosts file filled in with all your ip/hostname records
+2. Not needed to say, you need working docker configuration
+3. Create /etc/dnsmasq.conf file with below commands:
+
+########################
+# Do not use resolv.conf file. Instead, put there 127.0.0.1
+no-resolv
+
+# Upstream servers
+server=212.39.90.43
+server=1.1.1.1
+server=8.8.4.4
+
+# Never forward plain names (without a dot or domain part)
+domain-needed
+
+# Never forward addresses in the non-routed address spaces.
+bogus-priv
+
+# Uncomment this to filter useless windows-originated DNS requests
+# which can trigger dial-on-demand links needlessly.
+# Note that (amongst other things) this blocks all SRV requests,
+# so don't use it if you use eg Kerberos, SIP, XMMP or Google-talk.
+# This option only affects forwarding, SRV records originating for
+# dnsmasq (via srv-host= lines) are not suppressed by it.
+filterwin2k
+
+# For debugging purposes, log each DNS query as it passes through
+# dnsmasq.
+log-queries=extra
+
+# Log file
+log-facility=/var/log/dnsmasq.log
+
+# Define domain part for single names
+domain=YOURDOMAIN.local
+
+# Add domain part to single names
+expand-hosts
+
+# Do not forward non existing local queries to other dns servers
+local=/YOURDOMAIN.local/
+
+########################
+
+4. Note that we map hosts & dnsmasq.conf files read-only for security reasons.
+5. Using below command you can run your docker dnsmasq server. Do not forget to
+open firewall for port 53.
+
+docker run -d 	--restart unless-stopped \
+		--name dnsmasq \
+		-v /etc/hosts:/etc/hosts:ro \
+		-v /etc/dnsmasq.conf:/etc/dnsmasq.conf:ro \
+		-v /var/log/dnsmasq.log:/var/log/dnsmasq.log \
+		--log-opt "max-size=10m" \
+		-p 53:53 -p 53:53/udp \
+		--cap-add=NET_ADMIN strm/dnsmasq
+
+# That's it.
