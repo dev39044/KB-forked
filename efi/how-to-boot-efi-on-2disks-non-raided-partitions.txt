@@ -1,0 +1,28 @@
+# EFI by design doesn't support RAIDs.
+# Well, there are working configs with md raids 1 with --metadata=v1.0
+# but it depends on the hardware, so it's non 100% reliable option.
+
+# Here I've tested non raided solution that works.
+
+Model: ATA Samsung SSD 860 (scsi)
+Disk /dev/sdb: 1000GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+Disk Flags: 
+
+Number  Start   End     Size    File system  Name   Flags
+ 1      1049kB  512MB   511MB   fat32               boot, esp
+ 2      512MB   1023MB  512MB   ext4         /boot
+ 3      1023MB  7023MB  6000MB                      raid
+ 4      7023MB  21.0GB  14.0GB                      raid
+ 5      21.0GB  500GB   479GB                       raid
+
+
+[root@panda2 ~]# blkid /dev/sda1
+/dev/sda1: UUID="8C9D-85EA" TYPE="vfat" PARTUUID="c7acb05e-41c0-4861-9c29-b641f89a3336"
+[root@panda2 ~]# 
+[root@panda2 ~]# blkid /dev/sdb1
+/dev/sdb1: UUID="8C9D-85EA" TYPE="vfat" PARTUUID="c7acb05e-41c0-4861-9c29-b641f89a3336"
+[root@panda2 ~]# 
+[root@panda2 ~]# efibootmgr --verbose |grep -i debian
+Boot000E* debian	HD(1,GPT,c7acb05e-41c0-4861-9c29-b641f89a3336,0x800,0xf3800)/File(\EFI\debian\shimx64.efi)
