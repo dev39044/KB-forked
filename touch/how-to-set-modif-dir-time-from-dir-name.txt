@@ -1,0 +1,20 @@
+# We suppose that folder name is like that:
+
+08_03_2020_14:30:01
+
+# Then you can use this one liner command:
+
+for i in `ls -1d *:*` ; do touch -d "$(echo $i | cut -d_ -f2)/$(echo $i | cut -d_ -f1)/2020 $(echo $i | cut -d_ -f4)" "$i" ; done
+
+# ------------
+# GOOD TO KNOW
+# ------------
+
+# Folder modif time is changed when you add new file.
+# You can set whatever modif time for a file/folder with the freestyle -d parameter of touch command:
+
+# This will change both, modif and access times
+touch -d "Sun, 29 Feb 2004 16:21:42 -0800"
+
+# This will change only modif time
+touch -m -d "Sun, 29 Feb 2004 16:21:42 -0800"
