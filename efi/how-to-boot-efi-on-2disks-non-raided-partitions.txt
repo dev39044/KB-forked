@@ -1,8 +1,15 @@
-# EFI by design doesn't support RAIDs.
-# Well, there are working configs with md raids 1 with --metadata=v1.0
-# but it depends on the hardware, so it's non 100% reliable option.
+# EFI by design doesn't support RAIDs!
 
-# Here I've tested non raided solution that works.
+# Well, there are some public solutions (that I haven't tested at all) 
+# for md raid level1 with --metadata=v1.0, but as far as they write in forums
+# it depends on the hardware, so it's not a 100% reliable option.
+
+# Here I've tested non raided solution that works!
+#-----------------------------------------------------
+
+1. You need to have a working EFI partion on one of the disks.
+
+E.g:
 
 Model: ATA Samsung SSD 860 (scsi)
 Disk /dev/sdb: 1000GB
@@ -16,13 +23,34 @@ Number  Start   End     Size    File system  Name   Flags
  3      1023MB  7023MB  6000MB                      raid
  4      7023MB  21.0GB  14.0GB                      raid
  5      21.0GB  500GB   479GB                       raid
+#-----------------------------------------------------
 
+2. Check what is the PARTUUID of this EFI partion using below command:
 
 [root@panda2 ~]# blkid /dev/sda1
 /dev/sda1: UUID="8C9D-85EA" TYPE="vfat" PARTUUID="c7acb05e-41c0-4861-9c29-b641f89a3336"
-[root@panda2 ~]# 
+#-----------------------------------------------------
+
+3. Clone sda1 to sdb1 using dd command:
+
+dd if=/dev/sda1 of=/dev/sdb1 bs=16M
+
+BE CAREFUL WITH SOURCE AND DESTINATION PARTITIONS!!!
+
+#-----------------------------------------------------
+
+4. Now you have to clone PARTUUID number, so that both partitions be 100% identical.
+Use gdisk, then select x, then paste copied number, then press w (write).
+
+After that, verify that you have identical PARTUUIDs of both partitions. 
+
 [root@panda2 ~]# blkid /dev/sdb1
 /dev/sdb1: UUID="8C9D-85EA" TYPE="vfat" PARTUUID="c7acb05e-41c0-4861-9c29-b641f89a3336"
-[root@panda2 ~]# 
+
+5. Verify that you have the same PARTUUID in both EFI partitions, as well as in efi chip!
+ 
 [root@panda2 ~]# efibootmgr --verbose |grep -i debian
 Boot000E* debian	HD(1,GPT,c7acb05e-41c0-4861-9c29-b641f89a3336,0x800,0xf3800)/File(\EFI\debian\shimx64.efi)
+
+# That's it!
+#-----------------------------------------------------
