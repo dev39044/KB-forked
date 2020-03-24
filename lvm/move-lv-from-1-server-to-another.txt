@@ -1,0 +1,18 @@
+# Here we'll document how to transfer one LV from server1 to server2
+
+# 1.First you need some packages
+apt-get install pigz nc pv -y
+
+# 2. Create LV with same name and size
+
+lvcreate -L <FIXED-SIZE-GB> -n <LV-NAME> <VG>
+
+# 3. Then prepare you destination for receiving data from source server
+nc -l -p <DEST-PORT> | pigz -d | dd bs=16M of=/dev/vg0/<LV-NAME>
+
+# 4. Shutdown your VM !
+
+xl shutdown X 
+
+# 5. Finally start transfering your source data 
+pv -r -t -b -p -e /dev/vg0/<LV-NAME> | pigz -1 | nc <DESTINATION-IP> <DEST-PORT> -q 1
