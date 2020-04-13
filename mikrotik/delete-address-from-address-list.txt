@@ -1,0 +1,1 @@
+/ip firewall address-list remove [ /ip firewall address-list find list=IP-BLACKLIST address=192.168.X.X]
