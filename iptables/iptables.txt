@@ -1,39 +1,22 @@
-############## CHAIN EXPLANATION: http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables#.UkvwQYanpNA
-############## CHAIN EXPLANATION: http://www.netfilter.org/documentation/HOWTO//packet-filtering-HOWTO-6.html
-############## IPTABLES DIAGRAM:  http://www.adminsehow.com/2011/09/iptables-packet-traverse-map/
+# CHAIN EXPLANATION: http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables#.UkvwQYanpNA
+# CHAIN EXPLANATION: http://www.netfilter.org/documentation/HOWTO//packet-filtering-HOWTO-6.html
+# IPTABLES DIAGRAM:  http://www.adminsehow.com/2011/09/iptables-packet-traverse-map/
 
-############## 1. Check that all chain policies are set to ACCEPT
-
-iptables -L -v
-
-############## 2. Flush all rules from all chains. DO NOT FLUSH IF CHAIN POLICY IS SET TO DROP. YOU'LL SHOOT YOURSELF :)
-
-iptables -F
-
-############## 3. Put all ACCEPT rules and do not forget to accept your remote port (i.e 22) if you work remotely.
+# Put all ACCEPT rules and do not forget to accept your remote port (i.e 22) if you work remotely.
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 
-############## THIS IS VERY IMPORTANT!!!
-
-iptables -A OUTPUT -j ACCEPT  
-
-############## 4. Finally put DROP policy to all chains.
+# Finally put DROP policy to all chains.
 
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
-iptables -P OUTPUT DROP
 
-############## 5. Save your work. Below example is for Red Hat. Below command save them in /etc/sysconfig/iptables
-
-service iptables save
-
+# Save your work. Below example is for Red Hat. Below command save them in /etc/sysconfig/iptables
 iptables-restore < /etc/sysconfig/iptables
 
 ### For Debian this works like this. 1st install apt-get install iptables-persistent. Then you can use this:
 
 iptables-save > /etc/iptables/rules
-
 iptables-restore < /etc/iptables/rules
