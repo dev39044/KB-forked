@@ -1,0 +1,38 @@
+# The following procedure will harden security when using rsync for data backup.
+# This is done with the help of rrsync and binfs
+ 
+# 0. Install bindfs on source server
+apt-get install bindfs -y
+
+# 1. On source server create rsyncusr
+adduser rsyncusr
+
+# 2. Create ssh-for-rsyncusr folder
+mkdir -p /root/ssh-for-rsyncusr/.ssh/
+
+# 3. Create new auth file and copy id_rsa.pub key of destination root (or other) account 
+vi /root/ssh-for-rsyncusr/.ssh/authorized_keys
+- content of authorized_keys file:
+ command="/usr/bin/rrsync -ro /BACKUP-RO",from="DEST-IP//PULL-SERVER",no-pty,no-agent-forwarding,no-port-forwarding,no-X11-forwarding ssh-rsa AAAAB3NzaC1---this is pull's-account-pub-key...
+
+# 4. Create /BACKUP-RO and mount src backup tree with bindfs:
+ bindfs -r -u rsyncusr -g rsyncusr --create-for-user=rsyncusr /BACKUP /BACKUP-RO
+
+# 5. Mount RO .ssh and authorized_keys file for rsyncusr:
+bindfs -r -u rsyncusr -g rsyncusr --create-for-user=rsyncusr /root/ssh-for-rsyncusr/.ssh /home/rsyncusr/.ssh
+
+# 6. Set up rrsync:
+cp -av /usr/share/doc/rsync/scripts/rrsync /usr/local/bin
+chmod +x /usr/local/bin/rrsync
+ln -srv /usr/local/bin/rrsync /usr/bin/rrsync
+
+# 7. Perform tests:
+- check and set all permissions everywhere!
+- check if you can somehow del, modify, crack, login etc. in a bad way!
+- TEST if hard links works as expected!
+
+# 8. DO NOT forget to put and test auto mounts
+vi /etc/rc.local 
+
+Reboot source server & test!
+------------------------------------------------------------------------
