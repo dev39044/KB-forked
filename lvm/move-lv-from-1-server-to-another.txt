@@ -11,7 +11,7 @@ lvcreate -L <FIXED-SIZE-GB> -n <LV-NAME> <VG>
  lvcreate -L 15G -s -n 04.may.2020-ok /dev/mapper/vg0-<LV>--disk
 
 # 4. Then prepare you destination for receiving data from source server
-nc -l -p <DEST-PORT> | pigz -d | dd bs=16M of=/dev/vg0/<LV-NAME>
+nc -l -p <DEST-PORT> | dd bs=16M of=/dev/vg0/<LV-NAME>
 
 # 5. Finally start transfering your source data 
-pv -r -t -b -p -e /dev/vg0/<LV-NAME> | pigz -1 | nc <DESTINATION-IP> <DEST-PORT> -q 1
+pv -bretp /dev/vg0/<LV-NAME> | nc <IP/HOST> <DEST-PORT> -q 1
