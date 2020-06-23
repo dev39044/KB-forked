@@ -1,0 +1,7 @@
+# Run command below
+
+badblocks -vs /dev/sdX > badblock.txt 2>&1
+
+# without -s you won't see progress % bar 
+# It seems that output is comming from error stream,
+# thus we are redirecting it to stdout. 
