@@ -1,0 +1,56 @@
+# Main reference/help file is
+https://github.com/OpenVPN/easy-rsa/blob/master/doc/EasyRSA-Readme.md
+
+# -------------------------------------------------------------------
+# This HowTo is for new setup of openvpn.
+# Currently I'm setting openvpn with easy-rsa on Debian 10 with versions:
+ii  easy-rsa                             3.0.6-1                      all          Simple shell based CA utility
+ii  openvpn                              2.4.7-1                      amd64        virtual private network daemon
+
+# So...
+apt-get install openvpn easy-rsa
+cp -ar /usr/share/easy-rsa /etc/openvpn
+cd /etc/openvpn/easy-rsa
+mv vars.example vars
+
+# So since version 3.x.x vars file sourcing is forbidden.
+# Just edit default there and leave it like that.
+
+# Init pki
+./easy-rsa init-pki
+
+# You need to create a .rnd file like that
+dd if=/dev/urandom of=/etc/openvpn/easy-rsa/pki/.rnd bs=256 count=1
+
+# Build CA
+./easy-rsa build-ca
+
+# Gen dh
+./easy-rsa gen-dh
+
+# For CRL, remember that after EVERY revoked cert, you MUST execute below command
+# and copy the file to /etc/openvpn folder. Next command will help you to see rovoked
+# certs in crl.pem file.
+# Generate CRL 
+./easyrsa gen-crl
+
+# Verify CRL validify file. It should not expire in the next year :)
+openssl crl -in pki/crl.pem -text
+
+# DO NOT put password for this cert. It's a bit useless.
+# Generate server key pair
+./easyrsa build-server-full <your-server-hostname> nopass
+
+# Generate TLS Auth key (hardening OpenVPN)
+openvpn --genkey --secret pki/tls-auth.key
+
+# To generate your 1st client, execute this:
+./easy-rsa gen-req <username>
+
+# Then sign this requiest like that:
+./easy-rsa sign-req <client|server|ca> <username>
+
+# Well, that's it.
+#-------------------------------------------------
+
+
