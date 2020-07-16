@@ -1,0 +1,18 @@
+# If you have moved an array from another server and you want to rename it, 
+# follow below steps:
+
+# 1. Umount all mounted arrays
+# 2. Stop these arrays 
+mdadm --stop /dev/mdXXX
+
+# 3. Now assemble again the array with your new name.
+# Note that --update=name should be left as it is!
+mdadm --assemble /dev/md/<COULD BE A NUMBER/NAME> --name=<COULD BE A NUMBER/NAME> --update=name /dev/sd[cd]5
+# e.g:
+mdadm --assemble /dev/md/2 --name=2 --update=name /dev/sd[cd]5
+
+# 4. Don't forget to update your initram, or it will not work ;)
+
+update-initramfs -u
+
+# That's it.
