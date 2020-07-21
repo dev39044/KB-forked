@@ -21,6 +21,8 @@ pv -bretp /dev/vg0/<LV-NAME> | nc <IP/HOST> <DEST-PORT> -q 1
 [ SECURE ]
 # SSH reverse port fwd + dd + pv + nc
 
+# 0. Create LV SNAPSHOT
+
 # 1. On your dst server start listening on a specific port
 # and pipe input data to dd
 
@@ -40,5 +42,5 @@ ssh -nNfTR 4444:localhost:4444 DST-SRV -p <PORT>
 
 # 4. Start transferring 
 
-pv -bretp /dev/vg0/<LV-NAME> | nc localhost 4444 -q 1
+pv -bretp /dev/vg0/<LV-NAME>-snap | nc localhost 4444 -q 1
 
