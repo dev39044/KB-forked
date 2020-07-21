@@ -1,4 +1,5 @@
-# Here we'll document how to transfer one LV from server1 to server2
+[ NOT SECURE! ]
+# Here we'll document how to transfer one LV from server1 to server2 
 
 # 1.First you need some packages
 apt-get install pigz netcat pv -y
@@ -15,3 +16,29 @@ nc -l -p <DEST-PORT> | dd bs=16M of=/dev/vg0/<LV-NAME>
 
 # 5. Finally start transfering your source data 
 pv -bretp /dev/vg0/<LV-NAME> | nc <IP/HOST> <DEST-PORT> -q 1
+
+
+[ SECURE ]
+# SSH reverse port fwd + dd + pv + nc
+
+# 1. On your dst server start listening on a specific port
+# and pipe input data to dd
+
+nc -vlp 4444 | dd bs=16M of=/folder/file.img &
+
+# 2. Create reverse port fwd-ing on destination server
+# that points to your local port 4444
+# Note here -R which is opposite of -L (local port fwd)
+# -f put ssh in background, -N to not execute command,
+# -T to not allocate tty, -n prevents reading from stdin (needed when in bg ) 
+
+ssh -nNfTR 4444:localhost:4444 DST-SRV -p <PORT>
+
+# 3. Now you have to have listening 127.0.0.1:4444 on your dst-srv
+# Do not forget to check firewall on your receiving srv for not blocking
+# data from interface -i lo !!!
+
+# 4. Start transferring 
+
+pv -bretp /dev/vg0/<LV-NAME> | nc localhost 4444 -q 1
+
