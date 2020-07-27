@@ -1,0 +1,9 @@
+# Well, sshfs is similar to rsync.
+
+sshfs [ -p 1233 ] root@server1:/REMOTE-DIR /LOCAL-DIR
+
+# So, remote-dir could be mounted LVM LV on the remote server onto remote directory /REMOTE-DIR.
+# When you ssh, you'll see content of your remote dir in your local dir. 
+# That's it.
+
+
