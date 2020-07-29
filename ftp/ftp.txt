@@ -13,7 +13,7 @@
 #														#
 #														#
 #														#
-# 1. Active FTP:										#####################################################
+# 1. Active FTP:	
 #													  														#
 # Client send PORT command to server at TCP 21 port. 							  							#
 # It sends the PORT command, specifying what client-side port the server should connect to. 		  		#
@@ -26,63 +26,81 @@
 # The client connects from another random port to the random port specified in the server's response. 	  	#
 #############################################################################################################
 
-
 ========== VSFTP ==============
 
-1. VSFTP Config file:
+1. Below configuration was last used on 08/2020, Debian 10, version vsftpd 3.0.3-12, amd64
+-- -- --
 
-- In Red Hat /etc/vsftpd/vsftpd.conf
-- In Debian /etc/vsftpd.conf
+# /etc/vsftpd.conf
 
-2. Configuration:
-
-anonymous_enable=NO
-local_enable=YES
-write_enable=YES
-use_localtime=YES
-local_umask=022
-dirmessage_enable=NO
-connect_from_port_20=YES
-############################################
-# LOGGING
-############################################
-xferlog_enable=YES
-xferlog_std_format=YES
-
+# If enabled, vsftpd will run in standalone mode. This means that vsftpd must not be run from an inetd of some kind. Instead, the vsftpd executable is run once directly. vsftpd itself will
+# then take care of listening for and handling incoming connections.
 listen=YES
-pam_service_name=vsftpd
-userlist_enable=YES
-############################################
-# Here you have to list usernames which are allowed access.
-############################################
-userlist_file=/etc/vsftpd/vsftpd.list
-userlist_deny=NO
-tcp_wrappers=YES
-max_clients=5
-max_per_ip=3
-############################################
-# You have to create the banner file 1st! and put this inside: ProFTPD 1.3.4d Server
-############################################
-banner_file=/etc/vsftpd/vsftp_banner_file
-local_root=/var/ftp
 
-############################################
-# SSL
-############################################
-ssl_enable=YES
-allow_anon_ssl=NO
-force_local_logins_ssl=YES
-force_local_data_ssl=YES
-require_cert=YES
-ssl_sslv3=YES
-ssl_tlsv1=YES
+# Controls whether local logins are permitted or not. If enabled, normal user accounts in /etc/passwd (or wherever your PAM config references) may be used to log in. This  must  be  enable
+# for any non-anonymous login to work, including virtual users.
+local_enable=YES
+
+# This controls whether any FTP commands which change the filesystem are allowed or not. These commands are: STOR, DELE, RNFR, RNTO, MKD, RMD, APPE and SITE.
+write_enable=YES
+
+# This controls whether PORT style data connections use port 20 (ftp-data) on the server machine. For security reasons, some clients may insist that this is the case. Conversely, disabling
+# this option enables vsftpd to run with slightly less privilege.
+connect_from_port_20=YES
+
+# If  enabled,  vsftpd will display directory listings with the time in your local time zone. The default is to display GMT. The times returned by the MDTM FTP command are also affected by
+# this option.
+use_localtime=YES
+
+# It's obvious...
+anonymous_enable=NO
+local_umask=022
 rsa_cert_file=/etc/vsftpd/vsftpd.pem
 rsa_private_key_file=/etc/vsftpd/vsftpd.pem
-require_ssl_reuse=NO
-	
 
-3. SSL key generation via openssl lib:
+# If  enabled,  a  log file will be maintained detailling uploads and downloads.  By default, this file will be placed at /var/log/vsftpd.log, but this location may be overridden using the
+# configuration setting vsftpd_log_file.
+xferlog_enable=YES	
+
+# If  enabled,  vsftpd  will  load  a list of usernames, from the filename given by userlist_file.  If a user tries to log in using a name in this file, they will be denied before they are
+# asked for a password. This may be useful in preventing cleartext passwords being transmitted. See also userlist_deny.
+userlist_enable=YES
+
+# This option is the name of the file loaded when the userlist_enable option is active. Put every user on a new line.
+userlist_file=/etc/vsftpd/user_list
+
+# This option is examined if userlist_enable is activated. If you set this setting to NO, then users will be denied login unless they  are  explicitly  listed  in  the  file  specified  by
+# userlist_file.  When login is denied, the denial is issued before the user is asked for a password.
+userlist_deny=NO
+
+# If vsftpd is in standalone mode, this is the maximum number of clients which may be connected. Any additional clients connecting will get an error message. Default: 0 (unlimited)
+max_clients=5
+
+# If vsftpd is in standalone mode, this is the maximum number of clients which may be connected from the same source internet address. A client will get an error message if  they  go  over
+# this limit. Default: 0 (unlimited)
+max_per_ip=5
+
+# This option represents a directory which vsftpd will try to change into after a local (i.e. non-anonymous) login. Failure is silently ignored.
+local_root=/var/ftp
+
+# If  enabled,  and vsftpd was compiled against OpenSSL, vsftpd will support secure connections via SSL. This applies to the control connection (including login) and also data connections.
+# You'll need a client with SSL support too. NOTE!!  Beware enabling this option. Only enable it if you need it. vsftpd can make no guarantees about the security of the OpenSSL  libraries.
+# By enabling this option, you are declaring that you trust the security of your installed OpenSSL library.
+ssl_enable=YES
+
+# If set to yes, all SSL client connections are required to present a client certificate. The degree of validation applied to this certificate is  controlled  by  validate_cert  (Added  in
+# v2.0.6).
+require_cert=YES
+
+# If set to yes, all SSL client certificates received must validate OK.  Self-signed certs do not constitute OK validation. (New in v2.0.6).
+validate_cert=YES
+
+# If  set  to yes, all SSL data connections are required to exhibit SSL session reuse (which proves that they know the same master secret as the control channel). Although this is a secure
+# default, it may break many FTP clients, so you may want to disable it. For a discussion of the consequences, see http://scarybeastsecurity.blogspot.com/2009/02/vsftpd-210-released.html
+# (Added in v2.1.0).
+require_ssl_reuse=NO
+
+2. SSL key generation via openssl lib:
 
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/vsftpd/vsftpd.pem -out /etc/vsftpd/vsftpd.pem
-
 
