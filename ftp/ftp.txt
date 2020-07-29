@@ -26,6 +26,15 @@
 # The client connects from another random port to the random port specified in the server's response. 	  	#
 #############################################################################################################
 
+
+
+
+# MY ADVICE IS: JUST NOT USE THIS FUCKIN TECHNOLOGY ... FTP STANDS FOR FUCK THIS PROTOCOL.
+# MUCH BETTER IS TO USE NEXTCLOUD OR SOMETHING ... MODERN.
+
+
+
+
 ========== VSFTP ==============
 
 1. Below configuration was last used on 08/2020, Debian 10, version vsftpd 3.0.3-12, amd64
