@@ -57,6 +57,7 @@ anonymous_enable=NO
 local_umask=022
 rsa_cert_file=/etc/vsftpd/vsftpd.pem
 rsa_private_key_file=/etc/vsftpd/vsftpd.pem
+ssl_ciphers=HIGH
 
 # If  enabled,  a  log file will be maintained detailling uploads and downloads.  By default, this file will be placed at /var/log/vsftpd.log, but this location may be overridden using the
 # configuration setting vsftpd_log_file.
@@ -80,25 +81,44 @@ max_clients=5
 # this limit. Default: 0 (unlimited)
 max_per_ip=5
 
-# This option represents a directory which vsftpd will try to change into after a local (i.e. non-anonymous) login. Failure is silently ignored.
-local_root=/var/ftp
+# If you not enable chroot, well, your user is able to navigate through whole server / directory and files :/
+chroot_local_user=YES
+
+# This sub_token is kind of enabling a variable. It's used below for local_root.
+user_sub_token=$USER
+
+# Note that you are expected to manually create this ftp directory and set it like that:
+# mkdir /home/sammy/ftp
+# chown nobody:nogroup /home/sammy/ftp
+# chmod a-w /home/sammy/ftp
+# 
+# s -la /home/sammy/ftp
+# Output
+# total 8
+# 4 dr-xr-xr-x  2 nobody nogroup 4096 Aug 24 21:29 .
+# 4 drwxr-xr-x  3 sammy  sammy   4096 Aug 24 21:29 ..
+# 
+# 
+# mkdir /home/sammy/ftp/files
+# chown sammy:sammy /home/sammy/ftp/files
+# 
+# Now, test it via FileZilla client, as it support TLS ;)
+local_root=/home/$USER/ftp
 
 # If  enabled,  and vsftpd was compiled against OpenSSL, vsftpd will support secure connections via SSL. This applies to the control connection (including login) and also data connections.
 # You'll need a client with SSL support too. NOTE!!  Beware enabling this option. Only enable it if you need it. vsftpd can make no guarantees about the security of the OpenSSL  libraries.
 # By enabling this option, you are declaring that you trust the security of your installed OpenSSL library.
 ssl_enable=YES
 
-# If set to yes, all SSL client connections are required to present a client certificate. The degree of validation applied to this certificate is  controlled  by  validate_cert  (Added  in
-# v2.0.6).
-require_cert=YES
-
-# If set to yes, all SSL client certificates received must validate OK.  Self-signed certs do not constitute OK validation. (New in v2.0.6).
-validate_cert=YES
-
 # If  set  to yes, all SSL data connections are required to exhibit SSL session reuse (which proves that they know the same master secret as the control channel). Although this is a secure
 # default, it may break many FTP clients, so you may want to disable it. For a discussion of the consequences, see http://scarybeastsecurity.blogspot.com/2009/02/vsftpd-210-released.html
 # (Added in v2.1.0).
 require_ssl_reuse=NO
+
+# NOTE! You must open these ports in your iptables [ and on your wan router if that apply to you].
+pasv_min_port=40000
+pasv_max_port=50000
+
 
 2. SSL key generation via openssl lib:
 
