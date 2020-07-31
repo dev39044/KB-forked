@@ -20,3 +20,13 @@ iptables-restore < /etc/sysconfig/iptables
 
 iptables-save > /etc/iptables/rules
 iptables-restore < /etc/iptables/rules
+
+#######
+# NAT #
+#######
+
+iptables -t nat -A PREROUTING === this is used mainly for changing DESTINATION ADDRESS (a.k.a DNAT)
+iptables -t nat -A POSTROUTING === this is used mainly for changing SOURCE ADDRESS (a.k.a SNAT)
+
+packet --> [DNAT] (PRE) ROUTING (POST) [SNAT] --> packet ...
+
