@@ -1,0 +1,47 @@
+DEFAULT VLAN (DVLAN) vs NATIVE VLAN (NVLAN)
+# Modifying the VLAN
+The Default VLAN is always 1, this cannot be changed.
+The Native VLAN can change. It can be changed to any VLAN
+
+# Disabling VLAN
+The Default VLAN cannot be disabled
+NATIVE VLAN can be "disabled"
+
+# Untagged VLAN
+Traffic will be sent to Default VLAN when:
+Native VLAN and Default VLAN is same
+Traffic will be sent to Native VLAN when:
+Native VLAN and Default VLAN is same
+Native VLAN and Default VLAN is different
+
+# Default VLAN values
+1,1002-1005
+Any one VLAN per dot1q trunk port.
+
+# Encapsulation type
+DVLAN - Support on both dot1q and ISL encapsulation
+NVLAN - Support on dot1q encapsulation only
+
+# Cisco Recommendation
+DVLAN - should be VLAN 1
+NVLAN - should be VLAN other than 1
+
+# Control traffic for CDP,PAgp and VTP
+Sent on Default VLAN
+Not Sent on Native VLAN
+
+# DTP Traffic
+Not Sent on Default VLAN
+Sent on Native VLAN
+
+# Shutdown
+DVLAN Cannot be Shut
+NVLAN Can be Shut
+
+# Tagging:
+DVLAN - Yes
+NVLAN - Untagged by default (May be tagged if required)
+
+# Max number of VLANs
+DVLAN - One per Switch
+NVLAN - Number of Dot1q trunks on Switch
