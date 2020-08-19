@@ -45,3 +45,5 @@ ssh -nNfTR 4444:localhost:4444 DST-SRV -p <PORT>
 pv -bretp /dev/vg0/<LV-NAME>-snap | nc localhost 4444 -q 1
 
 # 5. REMOVE SNAPSHOT!
+
+# CONSIDER ALSO SSHFS OPTION, IT'S NICE AS WELL
