@@ -17,6 +17,17 @@ nc -l -p <DEST-PORT> | dd bs=16M of=/dev/vg0/<LV-NAME>
 # 5. Finally start transfering your source data 
 pv -bretp /dev/vg0/<LV-NAME> | nc <IP/HOST> <DEST-PORT> -q 1
 
+------------------------------------------------------------------
+[ SECURE ] 
+# This is the same as above method but with openssl encryption ;)
+# It has been tested and it's working.
+# SOURCE: (sending server)
+pv -bretp /dev/mapper/vg0-<LV> | openssl aes-256-cbc -salt -e -pbkdf2 -k <YOUR-PASS-HERE> | nc <DEST-SRV> <PORT> -q 1
+
+# DEST: (receiving server) --- NOTE -d (decrypt) option bellow!
+nc -lvp <PORT> | openssl aes-256-cbc -salt -d -pbkdf2 -k <SAME-PASS-HERE> | dd bs=16M of=/dev/mapper/vg0-<LV>
+
+-------------------------------------------------------------------
 
 [ SECURE ]
 # SSH reverse port fwd + dd + pv + nc
@@ -46,4 +57,5 @@ pv -bretp /dev/vg0/<LV-NAME>-snap | nc localhost 4444 -q 1
 
 # 5. REMOVE SNAPSHOT!
 
+---------------------------------------------------------------------------
 # CONSIDER ALSO SSHFS OPTION, IT'S NICE AS WELL
