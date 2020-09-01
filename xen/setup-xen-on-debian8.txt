@@ -119,15 +119,3 @@ xl create /etc/xen/configs/YOUR-VM-NAME.cfg -c
 
 xl console <vm-name> or <domID>
 
-
-
-
-
-
-
-
-
-
-
-
-

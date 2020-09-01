@@ -1,0 +1,6 @@
+# You have to make rc.local file a bash script.
+# Just add shebang and give root executable rights.
+chmod u+x /etc/rc.local
+
+# Systemd will execute it automatically during startup.
+# DO NOT forget to write tools with full path to them.
