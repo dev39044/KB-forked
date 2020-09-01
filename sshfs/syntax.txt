@@ -1,0 +1,15 @@
+# Well, sshfs is similar to rsync.
+
+sshfs [ -p 1233 ] root@REMOTE-SRV:/REMOTE-DIR-WITH-FILES /INTO-LOCAL-EMPTY-DIR on LOCAL server ("LOCAL" means the server you ssh FROM)
+
+# So, remote-dir could be mounted LVM LV on the remote server ("ssh-to") onto remote directory /REMOTE-DIR-WITH-FILES.
+# When you ssh, you'll see content of this remote dir into your local dir on your "ssh-from" local server. 
+# That's it.
+
+# MAIN PROBLEM WITH THIS APPROACH IS THAT YOU MUST HAVE ENOUGH SPACE ON THE REMOTE-SRV.
+# Let's say that you want to sync 100GB LV. Cool, but you have to have that space somewhere 
+# on that server in order to sync it via sshfs. This is because in the above case,
+# you mount remote-dir into your local dir. If it's the opposite, then it's all fine!
+
+# Well, if you have enough PV space, then you can solve above issue by creating a temp
+# lv, format it with extX and mount it :)
