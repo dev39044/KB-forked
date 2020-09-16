@@ -85,15 +85,3 @@ xl create /etc/xen/configs/YOUR-VM-NAME.cfg -c
 
 # To access your VMs just type:
 xl console <vm-name> or <domID>
-
-
-
-
-
-
-
-
-
-
-
-

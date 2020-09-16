@@ -30,3 +30,12 @@ iptables -t nat -A POSTROUTING === this is used mainly for changing SOURCE ADDRE
 
 packet --> [DNAT] (PRE) ROUTING (POST) [SNAT] --> packet ...
 
+# examples:
+# SNAT
+iptables -t nat -A POSTROUTING -o <iface-traffic-that-should-be-natted> -j SNAT --to-source <SRV-or-RTR-IP>
+
+# DNAT
+iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.24:80
+
+
+
