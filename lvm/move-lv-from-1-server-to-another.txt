@@ -9,23 +9,23 @@ apt-get install pigz netcat pv -y
 lvcreate -L <FIXED-SIZE-GB> -n <LV-NAME> <VG>
 
 # 3. Create a snapshot of your source LV
- lvcreate -L 15G -s -n 04.may.2020-ok /dev/mapper/vg0-<LV>--disk
+lvcreate -L 15G -s -n 04.may.2020-ok /dev/mapper/vg0-<LV>--disk
 
 # 4. Then prepare you destination for receiving data from source server
-nc -l -p <DEST-PORT> | dd bs=16M of=/dev/vg0/<LV-NAME>
+nc -l -p <DEST-PORT> | dd bs=100M of=/dev/vg0/<LV-NAME>
 
 # 5. Finally start transfering your source data 
-pv -bretp /dev/vg0/<LV-NAME> | nc <IP/HOST> <DEST-PORT> -q 1
+dd bs=100M status=progress if=/dev/vg0/<LV-NAME> | nc <IP/HOST> <DEST-PORT> -q 1
 
 ------------------------------------------------------------------
 [ SECURE ] 
 # This is the same as above method but with openssl encryption ;)
 # It has been tested and it's working.
 # SOURCE: (sending server)
-pv -bretp /dev/mapper/vg0-<LV> | openssl aes-256-cbc -salt -e -pbkdf2 -k <YOUR-PASS-HERE> | nc <DEST-SRV> <PORT> -q 1
+dd bs=100M status=progress if=/dev/mapper/vg0-<LV> | openssl aes-256-cbc -salt -e -pbkdf2 -k <YOUR-PASS-HERE> | nc <DEST-SRV> <PORT> -q 1
 
 # DEST: (receiving server) --- NOTE -d (decrypt) option bellow!
-nc -lvp <PORT> | openssl aes-256-cbc -salt -d -pbkdf2 -k <SAME-PASS-HERE> | dd bs=16M of=/dev/mapper/vg0-<LV>
+nc -lvp <PORT> | openssl aes-256-cbc -salt -d -pbkdf2 -k <SAME-PASS-HERE> | dd bs=100M of=/dev/mapper/vg0-<LV>
 
 -------------------------------------------------------------------
 
@@ -53,7 +53,7 @@ ssh -nNfTR 4444:localhost:4444 DST-SRV -p <PORT>
 
 # 4. Start transferring 
 
-pv -bretp /dev/vg0/<LV-NAME>-snap | nc localhost 4444 -q 1
+dd bs=100M status=progress if=/dev/vg0/<LV-NAME>-snap | nc localhost 4444 -q 1
 
 # 5. REMOVE SNAPSHOT!
 

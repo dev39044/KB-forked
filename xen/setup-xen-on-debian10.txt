@@ -85,6 +85,8 @@ xl create /etc/xen/configs/YOUR-VM-NAME.cfg -c
 
 # To access your VMs just type:
 xl console <vm-name> or <domID>
+<<<<<<< HEAD
+=======
 
 <<<<<<< HEAD:xen/setup-xen-on-debian8.txt
 =======
@@ -100,3 +102,4 @@ xl console <vm-name> or <domID>
 
 
 >>>>>>> e5991bf4bbab920920a586d5a52801513890212a:xen/setup-xen-on-debian10.txt
+>>>>>>> 233d8f274f97c86e1c784c3c6526b6bb7b7d94b9
