@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # DESCRIPTION:
 # This script is intended to automatically sync Mikrotik boards.
@@ -13,14 +14,11 @@
 # ------------------------------------------------
 
 # Enter CWD
-
 cd "$(dirname "$0")"
 
-# Source RB
-src_rb=192.168.1.1
-
-# Destination RB
-dst_rb=192.168.1.3
+# some vars
+src_rb=IP
+dst_rb=IP
 
 # Add email notification data
 cat > summary.txt <<EOL
@@ -53,7 +51,7 @@ echo '
 
 # # # IMPORTANT !!! 
 # # # ORDER OF EXECUTING BELOW COMMANDS IS IMPORTANT !!!
-# # # IMPORTNAT !!! 
+# # # IMPORTANT !!! 
 
 # Define array of commands to execute on destination RB
 cmds[0]='/ip firewall address-list export'
