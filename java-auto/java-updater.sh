@@ -71,6 +71,7 @@ To:<DESTINATION-EMAIL>
 From:<SENDER-EMAIL>
 Subject: Java auto upgrade results
 
+
 Current JRE version is $current_jre_ver	
 
 Installation statistics:		
