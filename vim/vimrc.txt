@@ -1,6 +1,0 @@
-:set nocompatible
-" NOTE THAT THIS IS A COMMENT. Here we do not use # for comments, instead only one quote ;)
-"map command below is used to create a shortcut of CTRL+A in order to select all text in a file
-" After selection you need to use yy to yank (copy) selected text. Then use p to paste it.
-map <C-a> <esc>ggVG<CR>
-

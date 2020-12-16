@@ -1,8 +1,0 @@
-#!/bin/bash
-
-freespace=$(df -m /cygdrive/c | awk '{print $4 }' |tail -1)
-if [ $freespace -lt 20000000 ] 
-then
-	echo "No free space"
-fi
-

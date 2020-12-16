@@ -1,5 +1,0 @@
-gg - go to 1,1 position of the file
-dG - delete all content of the file
-
-COPY/PASTE:
-go to the beggining of line you want to cut. Pres V, now to to the end o

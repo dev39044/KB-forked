@@ -1,8 +1,0 @@
-### This could be used to activate or deactivate slave iface in current bonding.
-
-echo -eth1 > /sys/class/net/bond0/bonding/slaves
-echo +eth1 > /sys/class/net/bond0/bonding/slaves
-
-### This will show you current active slave iface.
-
-cat /proc/net/bonding/bondX
