@@ -1,0 +1,1 @@
+mdadm --monitor --scan --test -1

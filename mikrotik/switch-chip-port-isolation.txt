@@ -1,0 +1,26 @@
+Port Isolation feature on my mikrotik RB2011 device sucks, because it's limited to a single switch chip only!
+If you want to isolate, e.g. port2 from port7 - this won't work, as usually this involves 2 switch chips.
+Port 1-5 = swich chip1 & ports 6-10 = switch chip2. 
+
+You could achieve similar functionality with Bridge Filter tab.
+It is like ebtables tool in Netfilter package.
+E.g:
+
+[vgroot@MikroTik-vg] /interface bridge filter> print all 
+Flags: X - disabled, I - invalid, D - dynamic 
+ 0   chain=forward action=drop in-bridge=DMZ-br0-and-Filters log=no log-prefix=""
+
+With this rule, you block forwarding in the bridge itself. Note that FORWARD table
+is used to forward frames between ports in the bridge.
+
+In Xen, you could do it with something like that:
+Suppose that all Xen VMs have interface names starting with vif-<SOME NAME>. Well,
+then on the Xen host you add rule in FORWARD ebtables table like that:
+
+ebtables -t filter -A FORWARD -i vif+ -o vif+ -j DROP
+
+"+" sign here is like regex and match iface starting with "vif".
+So, we're actually block traffic between virtual interfaces on that Xen bridge.
+More info for ebtables -> man ebtables-legacy  [ 1st install ebtables-legacy with apt-get install ebtables]
+
+That's it. 

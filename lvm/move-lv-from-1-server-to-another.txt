@@ -1,18 +1,61 @@
-# Here we'll document how to transfer one LV from server1 to server2
+[ NOT SECURE! ]
+# Here we'll document how to transfer one LV from server1 to server2 
 
 # 1.First you need some packages
-apt-get install pigz nc pv -y
+apt-get install pigz netcat pv -y
 
 # 2. Create LV with same name and size
 
 lvcreate -L <FIXED-SIZE-GB> -n <LV-NAME> <VG>
 
-# 3. Then prepare you destination for receiving data from source server
-nc -l -p <DEST-PORT> | pigz -d | dd bs=16M of=/dev/vg0/<LV-NAME>
+# 3. Create a snapshot of your source LV
+lvcreate -L 15G -s -n 04.may.2020-ok /dev/mapper/vg0-<LV>--disk
 
-# 4. Shutdown your VM !
-
-xl shutdown X 
+# 4. Then prepare you destination for receiving data from source server
+nc -l -p <DEST-PORT> | dd bs=100M of=/dev/vg0/<LV-NAME>
 
 # 5. Finally start transfering your source data 
-pv -r -t -b -p -e /dev/vg0/<LV-NAME> | pigz -1 | nc <DESTINATION-IP> <DEST-PORT> -q 1
+dd bs=100M status=progress if=/dev/vg0/<LV-NAME> | nc <IP/HOST> <DEST-PORT> -q 1
+
+------------------------------------------------------------------
+[ SECURE ] 
+# This is the same as above method but with openssl encryption ;)
+# It has been tested and it's working.
+# SOURCE: (sending server)
+dd bs=100M status=progress if=/dev/mapper/vg0-<LV> | openssl aes-256-cbc -salt -e -pbkdf2 -k <YOUR-PASS-HERE> | nc <DEST-SRV> <PORT> -q 1
+
+# DEST: (receiving server) --- NOTE -d (decrypt) option bellow!
+nc -lvp <PORT> | openssl aes-256-cbc -salt -d -pbkdf2 -k <SAME-PASS-HERE> | dd bs=100M of=/dev/mapper/vg0-<LV>
+
+-------------------------------------------------------------------
+
+[ SECURE ]
+# SSH reverse port fwd + dd + pv + nc
+
+# 0. Create LV SNAPSHOT
+
+# 1. On your dst server start listening on a specific port
+# and pipe input data to dd
+
+nc -vlp 4444 | dd bs=16M of=/folder/file.img &
+
+# 2. Create reverse port fwd-ing on destination server
+# that points to your local port 4444
+# Note here -R which is opposite of -L (local port fwd)
+# -f put ssh in background, -N to not execute command,
+# -T to not allocate tty, -n prevents reading from stdin (needed when in bg ) 
+
+ssh -nNfTR 4444:localhost:4444 DST-SRV -p <PORT>
+
+# 3. Now you have to have listening 127.0.0.1:4444 on your dst-srv
+# Do not forget to check firewall on your receiving srv for not blocking
+# data from interface -i lo !!!
+
+# 4. Start transferring 
+
+dd bs=100M status=progress if=/dev/vg0/<LV-NAME>-snap | nc localhost 4444 -q 1
+
+# 5. REMOVE SNAPSHOT!
+
+---------------------------------------------------------------------------
+# CONSIDER ALSO SSHFS OPTION, IT'S NICE AS WELL

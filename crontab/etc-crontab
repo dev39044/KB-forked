@@ -1,0 +1,14 @@
+# If you have anacron installed then check /etc/anacrontab
+# In Debian /etc/crontab is replaced by /etc/anacrontab. 
+
+7	10	cron.weekly	run-parts --report /etc/cron.weekly
+
+# above record in /etc/anacrontab means that cron.weekly will be executed
+# every 7 days with delay of 10 minutes. Anacron works as checking modification times: 
+
+cat /var/spool/anacron/cron.weekly 
+20200412
+
+# Hours don't matter, only date is important.
+# So if you want /etc/cron.weekly to run at specific day, you can modify spool anacron file
+# so that it matches your wish after 7 or X days.  

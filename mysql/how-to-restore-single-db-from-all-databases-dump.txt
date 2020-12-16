@@ -1,0 +1,12 @@
+# mysqldump output is just a set of SQL statements.
+# You can provide the desired database in the command line and skip the commands against the other databases using:
+
+mysql -D mydatabase -o mydatabase < dump.sql
+
+# This will only execute the commands when mydatabase is in use
+
+
+# ----
+# Another option which is IMHO much safer, is to extract the DB from an --all-databases dump. Example
+
+sed -n '/^-- Current Database: `dbname`/,/^-- Current Database: `/p' alldatabases.sql > output.sql
