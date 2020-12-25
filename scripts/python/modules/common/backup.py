@@ -1,9 +1,12 @@
-'''This module implements a backup solution'''
+"""This module implements a backup solution."""
 
 import glob
 import os
 import time
 from common.notify import notify
+
+__author__ = "Valentin Georgiev"
+__email__ = "dev@vgeorgiev.net"
 
 # OK -- cd cwd - This one for sure must be set in client script.
 # lock file -- test if locking should be a method or something else...
@@ -37,7 +40,7 @@ class Backup:
             os.makedirs(self.old_files)
 
     def cleanup(self):
-        '''move old data logs'''
+        """Move old data logs."""
         for f in glob.glob('data_*.*'):
             os.replace(f, self.old_files + '/' + f)
 

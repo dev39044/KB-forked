@@ -1,4 +1,4 @@
-'''Module for file locking mechanism'''
+"""Module for file locking mechanism."""
 
 import atexit
 import fcntl
@@ -6,6 +6,8 @@ import os
 import signal
 import sys
 
+__author__ = "Valentin Georgiev"
+__email__ = "dev@vgeorgiev.net"
 
 class FLocker:
     def __init__(self, file_name):
@@ -24,7 +26,6 @@ class FLocker:
             self.f = open(self.file)
             fcntl.flock(self.f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError as e:
-            print(e, 'SET LOCK')
             sys.exit(1)
 
     def release(self, signum=None, frame=None):
