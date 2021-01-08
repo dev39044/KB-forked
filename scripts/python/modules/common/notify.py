@@ -1,11 +1,12 @@
-'''Module for sending email notifications.'''
+"""Module for sending email notifications."""
 
-from email.message import EmailMessage
-from email.mime.text import MIMEText
 import smtplib
 import ssl
 
+from email.message import EmailMessage
+from email.mime.text import MIMEText
 
+# set your email configuration below
 def notify(subject='', body='', attachment=''):
     host = 'mail.server.com'
     port = 587
