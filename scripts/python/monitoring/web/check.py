@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Monitor if webpage is alive."""
+"""Regex based webpage monitoring."""
 
 
 import os
