@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-'''
-Description: Monitor health status of local mdraids
-Requrements: mdadm
-Author: Valentin Georgiev dev@vgeorgiev.net 
-Date: 12/2020
-'''
+"""Monitor health status of local mdraids."""
 
 import os
 import re
