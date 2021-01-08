@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-'''
-Description: Check if MonetaWeb App is running.
-Requrements: curl
-Author: Valentin Georgiev dev@vgeorgiev.net 
-Date: 12/2020
-'''
+"""Monitor if webpage is alive."""
 
 
 import os
