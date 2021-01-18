@@ -1,4 +1,4 @@
-""This module is a backup solution based on rsync."""
+"""This module is a backup solution based on rsync."""
 
 import glob
 import os
