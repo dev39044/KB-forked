@@ -24,8 +24,6 @@ class Backup:
         self.old_files = 'old_files'
         self.port = port
 
-        if not os.path.exists(self.dst_dir):
-            os.makedirs(self.dst_dir)
         if not os.path.exists(self.old_files):
             os.makedirs(self.old_files)
 
