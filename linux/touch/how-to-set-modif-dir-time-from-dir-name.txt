@@ -4,7 +4,7 @@
 
 # Then you can use this one liner command:
 
-for i in `ls -1d *:*` ; do touch -d "$(echo $i | cut -d_ -f2)/$(echo $i | cut -d_ -f1)/2020 $(echo $i | cut -d_ -f4)" "$i" ; done
+for i in `ls -1d *:*` ; do touch -d "$(echo $i | cut -d_ -f2)/$(echo $i | cut -d_ -f1)/$(echo $i | cut -d_ -f3) $(echo $i | cut -d_ -f4)" $i ; done
 
 # ------------
 # GOOD TO KNOW
