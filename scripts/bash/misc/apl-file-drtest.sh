@@ -2,6 +2,9 @@
 #
 # This script is intended to send some random files by email to specific users,
 # so that integrity and completeness of mentioned files is verified.
+#
+# Needed pkgs: mutt, rename, msmtp
+#
 
 cd "$(dirname "$0")"
 export IFS=$'\n'
