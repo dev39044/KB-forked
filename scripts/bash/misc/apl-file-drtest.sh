@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # This script is intended to send some random files by email to specific users,
-# so that integrity and completeness of mentioned files to be verified.
+# so that integrity and completeness of mentioned files is verified.
 
 cd "$(dirname "$0")"
 export IFS=$'\n'
