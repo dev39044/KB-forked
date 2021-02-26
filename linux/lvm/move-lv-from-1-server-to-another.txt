@@ -34,7 +34,7 @@ nc -lvp <PORT> | openssl aes-256-cbc -salt -d -pbkdf2 -k <SAME-PASS-HERE> | dd b
 
 # 0. Create LV SNAPSHOT
 
-# 1. On your dst server start listening on a specific port
+# 1. On your receiving (kob) server start listening on a specific port
 # and pipe input data to dd
 
 nc -vlp 4444 | dd bs=16M of=/folder/file.img &
