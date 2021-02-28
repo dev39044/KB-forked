@@ -20,4 +20,4 @@ RESUME=none
 # Finally update initramfs
 update-initramfs -u -k all
 
-
+# Hmm, if you have Xen vms, don't forget to change the vg in config files!
