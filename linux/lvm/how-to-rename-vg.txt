@@ -1,0 +1,23 @@
+# You need to perform several commands
+# To actually rename a volume group type:
+vgrename vg0 vg4
+
+# Now try to update grub
+update-grub
+
+# If above command fails, manually apply changes in grub.cfg.
+# First check what's going on with the old vg0 name:
+grep -i vg0 /boot/grub/grub.cfg
+
+# Now use sed to apply changes at once:
+sed -i 's/vg0/vg4/g' /boot/grub/grub.cfg
+
+# Do the same for /etc/fstab
+
+# Make sure /etc/initramfs-tools/conf.d/resume file contains:
+RESUME=none
+
+# Finally update initramfs
+update-initramfs -u -k all
+
+
