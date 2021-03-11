@@ -1,0 +1,31 @@
+---------------------------
+Note in "Partitions spanned" section device that starts with naa.6xxxxx
+Use that in below command to extend the datastore.
+---------------------------
+[root@esx1:/dev/disks] vmkfstools -Pv 10 /vmfs/volumes/iSCSI-200G/
+VMFS-6.81 (Raw Major Version: 24) file system spanning 1 partitions.
+File system label (if any): iSCSI-200G
+Mode: public
+Capacity 53418655744 (50944 file blocks * 1048576), 51909754880 (49505 blocks) avail, max supported file size 70368744177664
+Volume Creation Time: Sun Mar  7 14:55:13 2021
+Files (max/free): 16384/16375
+Ptr Blocks (max/free): 0/0
+Sub Blocks (max/free): 16384/16384
+Secondary Ptr Blocks (max/free): 256/255
+File Blocks (overcommit/used/overcommit %): 0/1439/0
+Ptr Blocks  (overcommit/used/overcommit %): 0/0/0
+Sub Blocks  (overcommit/used/overcommit %): 0/0/0
+Large File Blocks (total/used/file block clusters): 100/0/100
+Volume Metadata size: 1503035392
+UUID: 6044e951-b5affc8d-4f7b-0050563bd2ce
+Logical device: 6044e951-3d158b23-da2a-0050563bd2ce
+Partitions spanned (on "lvm"):
+        naa.60000000000000000e00000000010001:1
+Is Native Snapshot Capable: NO
+OBJLIB-LIB: ObjLib cleanup done.
+WORKER: asyncOps=0 maxActiveOps=0 maxPending=0 maxCompleted=0
+
+---------------------------
+---------------------------
+vmkfstools -G naa.60000000000000000e00000000010001\:1 naa.60000000000000000e00000000010001\:1
+
