@@ -11,5 +11,5 @@
         create: true
         backup: true
         line: "{{ ssh_key }}"
-        path: "{{ user }}"/.ssh/authorized_keys
+        path: "{{ user }}/.ssh/authorized_keys"
         state: present
