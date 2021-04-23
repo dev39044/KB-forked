@@ -1,0 +1,15 @@
+---
+- name: Insert public ssh key into authorized_keys.
+  hosts: localhost
+
+  vars:
+    user: /home/user
+    ssh_key: "ssh-rsa ZAAAB3NzaC1yc2EAAAADAQABAAABAQDE8PiNJvkF6hmnz8Yz8p2WVapGDCDZM4SWvAtO62j30w58rh1R2amuXuaVY8cufy5PCLns4HJezOT025wq4vueOQD8unSdv8bqasFLW1DdbzWvLj1/XhHidPIEsISXpdwpPTzOSOB+/Kw0Qx3g0qRF8i/jOHzV6sOFHta0WNMmMrjKEsihy6M33FcAN2Uf1uM5KHBr/oVv9WTH0UEqgudMGjqk2Vx8Mi5CXcfEYNli5P73oNUzasiV3cDMAAQ9MJ75yCW6CDQJXwqKAJS/ihqiNBd7xVoDTwFg6bEJ7f2d0ah5aFgy91llqbkIyfr9AhlroXu0C9D6SYhN8myOJYLj you-host-here"
+
+  tasks:
+      lineinfile:
+        create: true
+        backup: true
+        line: "{{ ssh_key }}"
+        path: "{{ user }}"/.ssh/authorized_keys
+        state: present
