@@ -17,16 +17,16 @@ mv vars.example vars
 # Just edit default there and leave it like that.
 
 # Init pki
-./easy-rsa init-pki
+./easyrsa init-pki
 
 # You need to create a .rnd file like that
 dd if=/dev/urandom of=/etc/openvpn/easy-rsa/pki/.rnd bs=256 count=1
 
 # Build CA
-./easy-rsa build-ca
+./easyrsa build-ca
 
 # Gen dh
-./easy-rsa gen-dh
+./easyrsa gen-dh
 
 # For CRL, remember that after EVERY revoked cert, you MUST execute below command
 # and copy the file to /etc/openvpn folder. Next command will help you to see rovoked
@@ -45,10 +45,10 @@ openssl crl -in pki/crl.pem -text
 openvpn --genkey --secret pki/tls-auth.key
 
 # To generate your 1st client, execute this:
-./easy-rsa gen-req <username>
+./easyrsa gen-req <username>
 
 # Then sign this requiest like that:
-./easy-rsa sign-req <client|server|ca> <username>
+./easyrsa sign-req <client|server|ca> <username>
 
 # Well, that's it.
 #-------------------------------------------------
