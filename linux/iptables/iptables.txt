@@ -38,4 +38,8 @@ iptables -t nat -A POSTROUTING -o <iface-traffic-that-should-be-natted> -j SNAT 
 iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.24:80
 
 
-
+# OpenVPN example:
+# Say you have 1 openvpn server, which has tun0 iface with 192.168.33.0/24 and vpn clients get ips from this net.
+# Okay, your vpn server has physical nic ens224 with 192.168.44.0/24 that you want to access, as this is the network of other srvs too.
+# Check iptables settings, ip forwarding and add this rule on the server:
+iptables -t nat -A POSTROUTING -s 192.168.33.0/24 -o ens224 -j MASQUERADE
