@@ -1,0 +1,1 @@
+grep -Iir --exclude-dir={proc,boot,sys,dev,run,log} '192.168.0.253' / 2>/dev/null
