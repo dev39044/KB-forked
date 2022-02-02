@@ -1,0 +1,5 @@
+# a way to create a compressed tar file from a folder.
+# one way to watch the progress is using watch -n 15 ls -ld your-file.tar.gz
+# or using pv and pigz for quicker compression
+
+tar -vzxf your-file.tar.gz <folder>
