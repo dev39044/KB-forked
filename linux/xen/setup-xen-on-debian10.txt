@@ -26,7 +26,7 @@ apt-get install xen-system-amd64 xen-tools
 # Add to /etc/default/grub following lines in order to limit dom0 to 1 cpu and 1G of RAM.
 
 # Xen boot parameters for all Xen boots(dom0-cpus 1)
-GRUB_CMDLINE_XEN="'dom0_mem=1024M,max:1024M' dom0_max_vcpus=1 dom0_vcpus_pin"
+GRUB_CMDLINE_XEN="'dom0_mem=4096M,max:4096M' dom0_max_vcpus=2 dom0_vcpus_pin"
 
 
 # Then create (if doesn't exist) /etc/xen/xend-config.sxp
@@ -34,9 +34,9 @@ vi /etc/xen/xend-config.sxp
 
 # and put these lines:
 
-(dom0-min-mem 1024)
+(dom0-min-mem 4096)
 (enable-dom0-ballooning no)
-(dom0-cpus 1)
+(dom0-cpus 2)
 
 # Then you need to update grub
 update-grub
