@@ -45,3 +45,6 @@ NVLAN - Untagged by default (May be tagged if required)
 # Max number of VLANs
 DVLAN - One per Switch
 NVLAN - Number of Dot1q trunks on Switch
+
+# PVID vs VLAN
+https://www.megajason.com/2018/04/30/what-is-pvid/#:~:text=PVID%20is%20short%20for%20Port,defined%20in%20IEEE%20802.1Q.
