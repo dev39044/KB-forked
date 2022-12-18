@@ -49,14 +49,13 @@ local=/YOURDOMAIN.local/
 4. Note that we map hosts & dnsmasq.conf files read-only for security reasons.
 5. Using below command you can run your docker dnsmasq server. Do not forget to
 open firewall for port 53.
+One more thing here, we run the container read-only, but we set /run rw, but still limited in size.
+The whole container is then run with the guest alpine limited user.
 
-docker run -d 	--restart unless-stopped \
-		--name dnsmasq \
-		-v /etc/hosts:/etc/hosts:ro \
-		-v /etc/dnsmasq.conf:/etc/dnsmasq.conf:ro \
-		-v /var/log/dnsmasq.log:/var/log/dnsmasq.log \
-		--log-opt "max-size=10m" \
-		-p 53:53 -p 53:53/udp \
-		--cap-add=NET_ADMIN strm/dnsmasq
+docker run -d -it --name dnsmasq --read-only \
+--restart unless-stopped -v /etc/hosts:/etc/hosts:ro \
+-v /etc/dnsmasq.conf:/etc/dnsmasq.conf:ro -p 53:53 -p 53:53/udp \
+--mount type=tmpfs,destination=/run,tmpfs-size=100M,tmpfs-mode=1770 \
+dnsmasq-alpine
 
 # That's it.
