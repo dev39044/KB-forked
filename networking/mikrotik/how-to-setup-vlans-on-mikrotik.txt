@@ -1,0 +1,12 @@
+Let's suppose that you have L2 managed switch connected to your Mikrotik router and you
+want to set up some vlans - vlan7 (DMZ) & vlan99 (mgmt) on the switch + vlan1 (Default).
+
+You have a default (vlan1) bridge X, that connects most of the Mik switches ports. OK, in that same bridge:
+1. add 2 new VLAN ifaces - 7 & 99 and link them to this same bridge. 
+2. add 2 new adresses 192.168.7.1 & 192.168.99.1 and link them with the corresponding vlan ifaces.
+3. Set up your firewall rules according your needs. That's it on the Mikrotik router.
+
+On your switch your should have a trunk port (usually port1) set only for the vlans 7 & 99. I mean,
+you have selected access ports members on the switch as untagged, and mark port #1 as tagged for this vlan.
+Do it in the same way for all vlans, except vlan1.
+For vlan1, just select all ports as untagged access ports, and that's it.
