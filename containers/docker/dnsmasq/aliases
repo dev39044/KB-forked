@@ -1,0 +1,6 @@
+alias docker-restart-dnsmasq='docker stop dnsmasq && docker rm dnsmasq && docker-start-dnsmasq'
+alias docker-start-dnsmasq='docker run -d -it --name dnsmasq --read-only \
+--restart unless-stopped -v /etc/hosts:/etc/hosts:ro \
+-v /etc/dnsmasq.conf:/etc/dnsmasq.conf:ro -p 53:53 -p 53:53/udp \
+--mount type=tmpfs,destination=/run,tmpfs-size=100M,tmpfs-mode=1770 \
+dnsmasq-alpine'
